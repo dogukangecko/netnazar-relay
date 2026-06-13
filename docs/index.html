@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetNazar Relay — self-hosted, open source</title>
+<meta name="description" content="Self-hosted relay + protocol for NetNazar. No vendor cloud — you run the server, your data never leaves infrastructure you control. Open source, AGPL-3.0.">
+<meta name="theme-color" content="#0a0e16">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230d2b5e'/%3E%3Ccircle cx='50' cy='50' r='34' fill='%23f4f7fc'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%232f7fe0'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%230a1424'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#0a0e16;--surface:#141a26;--surface2:#0f1521;--line:#222c3c;--text:#e8edf4;--muted:#93a0b4;--faint:#6b7689;--amber:#e8a13a;--eye:#5b9bf0;--green:#46c98b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+  a{color:var(--eye);text-decoration:none}a:hover{text-decoration:underline}
+  code,pre{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  nav{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:rgba(10,14,22,.85);backdrop-filter:blur(10px)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700}.brand svg{width:24px;height:24px}
+  .nav-r{display:flex;align-items:center;gap:14px}
+  .nav-r a{color:var(--muted);font-size:.9rem;white-space:nowrap}
+  .lang-sel{appearance:none;background:var(--surface);color:var(--text);border:1px solid var(--line);
+    border-radius:10px;padding:7px 30px 7px 12px;font-size:.86rem;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2393a0b4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center}
+  header.hero{padding:70px 0 50px;text-align:center}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;color:var(--green);border:1px solid #1f3b30;background:#0f1d17;padding:5px 13px;border-radius:999px;font-weight:600}
+  h1{font-size:2.4rem;letter-spacing:-.03em;margin:18px 0 6px;line-height:1.15}
+  .hero p.sub{font-size:1.12rem;color:var(--muted);max-width:600px;margin:10px auto 0}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:.95rem}
+  .btn.primary{background:var(--eye);color:#04101f}.btn.primary:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{border:1px solid var(--line);color:var(--text)}.btn.ghost:hover{text-decoration:none;border-color:var(--eye)}
+  section{padding:18px 0}
+  h2{font-size:1.4rem;letter-spacing:-.02em;margin:38px 0 14px}
+  h2 .ic{color:var(--amber)}
+  p.lead{color:var(--muted)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+  @media(max-width:640px){.grid3{grid-template-columns:1fr}h1{font-size:1.9rem}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h3{margin:0 0 6px;font-size:1.02rem}
+  .card p{margin:0;color:var(--muted);font-size:.92rem}
+  pre{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;font-size:.86rem;line-height:1.6;color:#cdd6e4}
+  pre .c{color:var(--faint)}pre .k{color:var(--eye)}
+  .ascii{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:18px;overflow-x:auto;font-size:.78rem;line-height:1.45;color:var(--muted);white-space:pre}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--faint);font-weight:600}td code{color:var(--eye)}
+  .note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:10px;padding:14px 18px;color:var(--muted);font-size:.92rem;margin:18px 0}
+  .note strong{color:var(--text)}
+  footer{border-top:1px solid var(--line);margin-top:48px;padding:30px 0 60px;color:var(--faint);font-size:.88rem;text-align:center}
+  [dir="rtl"] th,[dir="rtl"] td{text-align:right}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="nazar" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#0d2b5e"/><circle cx="50" cy="50" r="34" fill="#f4f7fc"/><circle cx="50" cy="50" r="22" fill="#2f7fe0"/><circle cx="50" cy="50" r="10" fill="#0a1424"/></symbol></svg>
+
+<nav><div class="wrap nav-in">
+  <a class="brand" href="https://dogukangecko.github.io/netnazar/"><svg><use href="#nazar"/></svg> NetNazar Relay</a>
+  <div class="nav-r">
+    <a href="https://dogukangecko.github.io/netnazar/" data-i18n="nav.app">NetNazar app ↗</a>
+    <a href="https://github.com/dogukangecko/netnazar-relay">GitHub</a>
+    <select id="lang" class="lang-sel" aria-label="Language"></select>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="pill">● <span data-i18n="hero.pill">Open source · AGPL-3.0</span></span>
+  <h1 data-i18n="hero.h1">The relay you run yourself.</h1>
+  <p class="sub" data-i18n="hero.sub">Self-hosted relay + protocol for NetNazar, the privacy-first network scanner. No vendor cloud — your data never leaves infrastructure you control.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/dogukangecko/netnazar-relay" data-i18n="hero.cta1">View source on GitHub</a>
+    <a class="btn ghost" href="#quickstart" data-i18n="hero.cta2">Quick start ↓</a>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+  <section>
+    <h2><span class="ic">▍</span><span data-i18n="what.h">What is this?</span></h2>
+    <p class="lead" data-i18n="what.p">NetNazar runs entirely on your device. For <em>optional</em> remote monitoring — watching your home network from outside and reaching device web UIs — it uses a relay that you self-host. This repository is exactly that server, so you can read, audit, build and run it yourself.</p>
+    <div class="grid3">
+      <div class="card"><h3>netscan-relay</h3><p data-i18n="what.c1">The relay server (Rust · axum + PostgreSQL). Receives inventory/metrics from your agent, serves them to your app, dispatches away-notifications to your own channels, keeps a hash-chained audit log.</p></div>
+      <div class="card"><h3>netscan-proto</h3><p data-i18n="what.c2">The documented wire types exchanged between the agent and the relay — the protocol, in the open.</p></div>
+      <div class="card"><h3 data-i18n="what.c3h">Web panel</h3><p data-i18n="what.c3">A read-only panel and a reverse tunnel to device web UIs, with an SSRF guard restricting the agent to private IPv4.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="ic">▍</span><span data-i18n="why.h">Why self-host?</span></h2>
+    <div class="grid3">
+      <div class="card"><h3 data-i18n="why.c1h">Zero data-custody</h3><p data-i18n="why.c1">We never receive your scan data. The relay you run does — and only that.</p></div>
+      <div class="card"><h3 data-i18n="why.c2h">No third party</h3><p data-i18n="why.c2">Away-notifications go through channels you configure: your ntfy, your Telegram bot, your webhook.</p></div>
+      <div class="card"><h3 data-i18n="why.c3h">Auditable</h3><p data-i18n="why.c3">Read every line. Verify there is no telemetry, no phone-home, no hidden sink.</p></div>
+    </div>
+  </section>
+
+  <section id="quickstart">
+    <h2><span class="ic">▍</span><span data-i18n="qs.h">Quick start (Docker)</span></h2>
+    <p class="lead" data-i18n="qs.p">Clone, set a database password, and bring it up. The relay applies its schema migrations automatically on startup and listens on <code>:8080</code>.</p>
+<pre><span class="c"># clone & enter</span>
+git clone https://github.com/dogukangecko/netnazar-relay.git
+cd netnazar-relay
+
+<span class="c"># set a real DB password in production</span>
+export NETSCAN_DB_PASSWORD=<span class="k">"$(openssl rand -hex 16)"</span>
+
+<span class="c"># PostgreSQL + relay on :8080</span>
+docker compose up -d --build</pre>
+    <p class="lead" data-i18n="qs.after">Point your agent's <code>NETSCAN_RELAY_URL</code> at it, then log in from the NetNazar app's remote view. The same binary doubles as an admin CLI:</p>
+<pre>netscan-relay enroll                          <span class="c"># agent id + push key</span>
+netscan-relay create-user --email you@example.com --password '...'
+netscan-relay add-channel --kind ntfy ...     <span class="c"># wire an away-notification channel</span></pre>
+  </section>
+
+  <section>
+    <h2><span class="ic">▍</span><span data-i18n="how.h">How it works</span></h2>
+    <div class="ascii"> your network                      your server                your phone
+┌──────────────┐  push (HTTPS)  ┌────────────────┐   read  ┌──────────────┐
+│ NetNazar     │ ─────────────▶ │  netscan-relay │ ──────▶ │ NetNazar app │
+│ agent (scan) │  inventory,    │  + PostgreSQL  │  login, │ (remote view)│
+│              │  metrics       │                │  events │              │
+└──────────────┘                └────────────────┘         └──────────────┘
+      outbound-only          REST + WebSocket (axum)     opaque session token</div>
+    <p class="lead" data-i18n="how.p">The agent pushes inventory and metrics (authenticated with an agent key). The app logs in for an opaque, hashed, expiring session token and reads networks, devices, metrics, outages, events and the audit log. A reverse tunnel lets the app reach a device's web UI through the relay. Multi-tenant from day one.</p>
+
+    <h2><span class="ic">▍</span><span data-i18n="cfg.h">Configuration</span></h2>
+    <table>
+      <tr><th data-i18n="cfg.t1">Variable</th><th data-i18n="cfg.t2">Required</th><th data-i18n="cfg.t3">Purpose</th></tr>
+      <tr><td><code>NETSCAN_DATABASE_URL</code></td><td>✅</td><td data-i18n="cfg.r1">PostgreSQL connection string</td></tr>
+      <tr><td><code>NETSCAN_BIND</code></td><td>—</td><td data-i18n="cfg.r2">Listen address (default 0.0.0.0:8080)</td></tr>
+      <tr><td><code>NETSCAN_DB_PASSWORD</code></td><td>—</td><td data-i18n="cfg.r3">Used by docker-compose (change in production)</td></tr>
+    </table>
+    <p class="lead" data-i18n="cfg.note">Secrets (DB URL, channel tokens) are read from the environment — never hardcoded.</p>
+  </section>
+
+  <section>
+    <div class="note"><strong data-i18n="oc.h">Open-core.</strong> <span data-i18n="oc.p">The relay and protocol are open source (AGPL-3.0) so the component running on your server is fully auditable. The NetNazar app and the scanning engine are proprietary and ship through the App Store / Google Play / signed desktop builds.</span></div>
+
+    <h2><span class="ic">▍</span><span data-i18n="lic.h">License</span></h2>
+    <p class="lead" data-i18n="lic.p"><a href="https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE">AGPL-3.0</a>. If you run a modified relay as a network service, you must offer your users its source. This is intentional: NetNazar is self-host first, and no one should be able to turn it into a closed vendor cloud.</p>
+  </section>
+
+</main>
+<footer>© 2026 NetNazar 🧿 — <span data-i18n="foot">built by</span> <a href="https://github.com/dogukangecko">@dogukangecko</a></footer>
+
+<script>
+const LANGS=[["en","English"],["tr","Türkçe"],["zh","中文"],["hi","हिन्दी"],["es","Español"],["fr","Français"],["ar","العربية"],["pt","Português"],["ru","Русский"],["ja","日本語"],["de","Deutsch"]];
+const I18N={
+ en:{
+  "meta.title":"NetNazar Relay — self-hosted, open source",
+  "meta.desc":"Self-hosted relay + protocol for NetNazar. No vendor cloud — you run the server, your data never leaves infrastructure you control. Open source, AGPL-3.0.",
+  "nav.app":"NetNazar app ↗",
+  "hero.pill":"Open source · AGPL-3.0",
+  "hero.h1":"The relay you run yourself.",
+  "hero.sub":"Self-hosted relay + protocol for NetNazar, the privacy-first network scanner. No vendor cloud — your data never leaves infrastructure you control.",
+  "hero.cta1":"View source on GitHub",
+  "hero.cta2":"Quick start ↓",
+  "what.h":"What is this?",
+  "what.p":"NetNazar runs entirely on your device. For <em>optional</em> remote monitoring — watching your home network from outside and reaching device web UIs — it uses a relay that you self-host. This repository is exactly that server, so you can read, audit, build and run it yourself.",
+  "what.c1":"The relay server (Rust · axum + PostgreSQL). Receives inventory/metrics from your agent, serves them to your app, dispatches away-notifications to your own channels, keeps a hash-chained audit log.",
+  "what.c2":"The documented wire types exchanged between the agent and the relay — the protocol, in the open.",
+  "what.c3h":"Web panel",
+  "what.c3":"A read-only panel and a reverse tunnel to device web UIs, with an SSRF guard restricting the agent to private IPv4.",
+  "why.h":"Why self-host?",
+  "why.c1h":"Zero data-custody","why.c1":"We never receive your scan data. The relay you run does — and only that.",
+  "why.c2h":"No third party","why.c2":"Away-notifications go through channels you configure: your ntfy, your Telegram bot, your webhook.",
+  "why.c3h":"Auditable","why.c3":"Read every line. Verify there is no telemetry, no phone-home, no hidden sink.",
+  "qs.h":"Quick start (Docker)",
+  "qs.p":"Clone, set a database password, and bring it up. The relay applies its schema migrations automatically on startup and listens on <code>:8080</code>.",
+  "qs.after":"Point your agent's <code>NETSCAN_RELAY_URL</code> at it, then log in from the NetNazar app's remote view. The same binary doubles as an admin CLI:",
+  "how.h":"How it works",
+  "how.p":"The agent pushes inventory and metrics (authenticated with an agent key). The app logs in for an opaque, hashed, expiring session token and reads networks, devices, metrics, outages, events and the audit log. A reverse tunnel lets the app reach a device's web UI through the relay. Multi-tenant from day one.",
+  "cfg.h":"Configuration",
+  "cfg.t1":"Variable","cfg.t2":"Required","cfg.t3":"Purpose",
+  "cfg.r1":"PostgreSQL connection string","cfg.r2":"Listen address (default 0.0.0.0:8080)","cfg.r3":"Used by docker-compose (change in production)",
+  "cfg.note":"Secrets (DB URL, channel tokens) are read from the environment — never hardcoded.",
+  "oc.h":"Open-core.","oc.p":"The relay and protocol are open source (AGPL-3.0) so the component running on your server is fully auditable. The NetNazar app and the scanning engine are proprietary and ship through the App Store / Google Play / signed desktop builds.",
+  "lic.h":"License",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. If you run a modified relay as a network service, you must offer your users its source. This is intentional: NetNazar is self-host first, and no one should be able to turn it into a closed vendor cloud.",
+  "foot":"built by"
+ },
+ tr:{
+  "meta.title":"NetNazar Relay — kendi sunucunda, açık kaynak",
+  "meta.desc":"NetNazar için self-host relay + protokol. Satıcı bulutu yok — sunucuyu sen çalıştırırsın, verin kontrol ettiğin altyapıdan çıkmaz. Açık kaynak, AGPL-3.0.",
+  "nav.app":"NetNazar uygulaması ↗",
+  "hero.pill":"Açık kaynak · AGPL-3.0",
+  "hero.h1":"Kendi çalıştırdığın relay.",
+  "hero.sub":"Gizlilik-öncelikli ağ tarayıcı NetNazar için self-host relay + protokol. Satıcı bulutu yok — verin kontrol ettiğin altyapıdan asla çıkmaz.",
+  "hero.cta1":"GitHub'da kaynağı gör",
+  "hero.cta2":"Hızlı başlangıç ↓",
+  "what.h":"Bu nedir?",
+  "what.p":"NetNazar tamamen cihazında çalışır. <em>İsteğe bağlı</em> uzaktan izleme için — ev ağını dışarıdan izlemek ve cihaz web arayüzlerine erişmek — self-host ettiğin bir relay kullanır. Bu depo tam olarak o sunucudur; okuyabilir, denetleyebilir, derleyip kendin çalıştırabilirsin.",
+  "what.c1":"Relay sunucusu (Rust · axum + PostgreSQL). Agent'ından envanter/metrik alır, uygulamana sunar, uzakta-bildirimlerini senin kendi kanallarına gönderir, hash-zincirli denetim günlüğü tutar.",
+  "what.c2":"Agent ile relay arasında değiş tokuş edilen, belgelenmiş tel tipleri — protokol, açıkça.",
+  "what.c3h":"Web paneli",
+  "what.c3":"Salt-okunur panel ve cihaz web arayüzlerine ters tünel; agent'ı özel IPv4 ile sınırlayan SSRF koruması ile.",
+  "why.h":"Neden self-host?",
+  "why.c1h":"Sıfır veri velayeti","why.c1":"Tarama verini biz asla almayız. Senin çalıştırdığın relay alır — sadece o.",
+  "why.c2h":"Üçüncü taraf yok","why.c2":"Uzakta-bildirimleri senin yapılandırdığın kanallardan gider: kendi ntfy'ın, kendi Telegram botun, kendi webhook'un.",
+  "why.c3h":"Denetlenebilir","why.c3":"Her satırı oku. Telemetri, eve-arama veya gizli bir veri çıkışı olmadığını doğrula.",
+  "qs.h":"Hızlı başlangıç (Docker)",
+  "qs.p":"Klonla, bir veritabanı parolası belirle ve ayağa kaldır. Relay başlangıçta şema göçlerini otomatik uygular ve <code>:8080</code> dinler.",
+  "qs.after":"Agent'ının <code>NETSCAN_RELAY_URL</code>'sini buna yönlendir, sonra NetNazar uygulamasının uzak görünümünden giriş yap. Aynı ikili yönetici CLI'si olarak da çalışır:",
+  "how.h":"Nasıl çalışır",
+  "how.p":"Agent envanter ve metrikleri push eder (agent anahtarıyla doğrulanır). Uygulama opak, hash'lenmiş, süreli bir oturum jetonu için giriş yapar ve ağları, cihazları, metrikleri, kesintileri, olayları ve denetim günlüğünü okur. Ters tünel, uygulamanın bir cihazın web arayüzüne relay üzerinden erişmesini sağlar. İlk günden çok kiracılı.",
+  "cfg.h":"Yapılandırma",
+  "cfg.t1":"Değişken","cfg.t2":"Zorunlu","cfg.t3":"Amaç",
+  "cfg.r1":"PostgreSQL bağlantı dizesi","cfg.r2":"Dinleme adresi (varsayılan 0.0.0.0:8080)","cfg.r3":"docker-compose tarafından kullanılır (üretimde değiştir)",
+  "cfg.note":"Sırlar (DB URL, kanal jetonları) ortamdan okunur — asla koda gömülmez.",
+  "oc.h":"Açık çekirdek.","oc.p":"Relay ve protokol açık kaynaktır (AGPL-3.0); böylece sunucunda çalışan bileşen tümüyle denetlenebilir. NetNazar uygulaması ve tarama motoru özeldir ve App Store / Google Play / imzalı masaüstü derlemeleriyle dağıtılır.",
+  "lic.h":"Lisans",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Değiştirilmiş bir relay'i ağ servisi olarak çalıştırırsan, kullanıcılarına kaynağını sunmalısın. Bu bilinçlidir: NetNazar önce self-host'tur ve kimse bunu kapalı bir satıcı bulutuna çeviremesin.",
+  "foot":"yapan:"
+ },
+ zh:{
+  "meta.title":"NetNazar Relay — 自托管，开源",
+  "meta.desc":"NetNazar 的自托管中继 + 协议。没有厂商云端——服务器由你运行，数据绝不离开你掌控的基础设施。开源，AGPL-3.0。",
+  "nav.app":"NetNazar 应用 ↗",
+  "hero.pill":"开源 · AGPL-3.0",
+  "hero.h1":"由你自己运行的中继。",
+  "hero.sub":"为隐私优先的网络扫描器 NetNazar 提供的自托管中继 + 协议。没有厂商云端——数据绝不离开你掌控的基础设施。",
+  "hero.cta1":"在 GitHub 查看源码",
+  "hero.cta2":"快速开始 ↓",
+  "what.h":"这是什么？",
+  "what.p":"NetNazar 完全在你的设备上运行。对于<em>可选的</em>远程监控——从外部查看家庭网络并访问设备网页界面——它使用一个由你自托管的中继。本仓库正是那个服务器，你可以自行阅读、审计、构建和运行它。",
+  "what.c1":"中继服务器（Rust · axum + PostgreSQL）。接收来自你的代理的清单/指标，提供给你的应用，将离家通知发送到你自己的渠道，并保留哈希链式审计日志。",
+  "what.c2":"代理与中继之间交换的、有文档记录的线路类型——公开的协议。",
+  "what.c3h":"网页面板",
+  "what.c3":"只读面板与通往设备网页界面的反向隧道，并带有将代理限制在私有 IPv4 的 SSRF 防护。",
+  "why.h":"为何自托管？",
+  "why.c1h":"零数据托管","why.c1":"我们绝不接收你的扫描数据。只有你运行的中继才会——仅此而已。",
+  "why.c2h":"没有第三方","why.c2":"离家通知通过你配置的渠道发送：你的 ntfy、你的 Telegram 机器人、你的 webhook。",
+  "why.c3h":"可审计","why.c3":"逐行阅读。验证没有遥测、没有回传、没有隐藏的数据出口。",
+  "qs.h":"快速开始（Docker）",
+  "qs.p":"克隆、设置数据库密码并启动。中继在启动时自动应用其架构迁移，并监听 <code>:8080</code>。",
+  "qs.after":"将你代理的 <code>NETSCAN_RELAY_URL</code> 指向它，然后从 NetNazar 应用的远程视图登录。同一个二进制文件也可作为管理 CLI：",
+  "how.h":"工作原理",
+  "how.p":"代理推送清单和指标（用代理密钥认证）。应用登录获取一个不透明、经哈希、会过期的会话令牌，读取网络、设备、指标、中断、事件和审计日志。反向隧道让应用通过中继访问设备的网页界面。从第一天起即多租户。",
+  "cfg.h":"配置",
+  "cfg.t1":"变量","cfg.t2":"必需","cfg.t3":"用途",
+  "cfg.r1":"PostgreSQL 连接字符串","cfg.r2":"监听地址（默认 0.0.0.0:8080）","cfg.r3":"由 docker-compose 使用（生产中请更改）",
+  "cfg.note":"机密信息（数据库 URL、渠道令牌）从环境读取——绝不硬编码。",
+  "oc.h":"开放核心。","oc.p":"中继和协议是开源的（AGPL-3.0），因此在你服务器上运行的组件完全可审计。NetNazar 应用和扫描引擎为专有，通过 App Store / Google Play / 已签名的桌面版本分发。",
+  "lic.h":"许可证",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>。如果你将修改后的中继作为网络服务运行，你必须向你的用户提供其源码。这是有意为之：NetNazar 以自托管为先，任何人都不应能把它变成封闭的厂商云端。",
+  "foot":"作者"
+ },
+ hi:{
+  "meta.title":"NetNazar Relay — स्व-होस्टेड, ओपन सोर्स",
+  "meta.desc":"NetNazar के लिए स्व-होस्टेड रिले + प्रोटोकॉल। कोई वेंडर क्लाउड नहीं — सर्वर आप चलाते हैं, आपका डेटा आपके नियंत्रित बुनियादी ढांचे से कभी बाहर नहीं जाता। ओपन सोर्स, AGPL-3.0।",
+  "nav.app":"NetNazar ऐप ↗",
+  "hero.pill":"ओपन सोर्स · AGPL-3.0",
+  "hero.h1":"वह रिले जिसे आप स्वयं चलाते हैं।",
+  "hero.sub":"गोपनीयता-प्रथम नेटवर्क स्कैनर NetNazar के लिए स्व-होस्टेड रिले + प्रोटोकॉल। कोई वेंडर क्लाउड नहीं — आपका डेटा आपके नियंत्रित बुनियादी ढांचे से कभी बाहर नहीं जाता।",
+  "hero.cta1":"GitHub पर सोर्स देखें",
+  "hero.cta2":"त्वरित शुरुआत ↓",
+  "what.h":"यह क्या है?",
+  "what.p":"NetNazar पूरी तरह आपके डिवाइस पर चलता है। <em>वैकल्पिक</em> रिमोट मॉनिटरिंग के लिए — बाहर से अपने घरेलू नेटवर्क को देखना और डिवाइस वेब UI तक पहुँचना — यह एक रिले का उपयोग करता है जिसे आप स्व-होस्ट करते हैं। यह रिपॉज़िटरी ठीक वही सर्वर है, ताकि आप इसे स्वयं पढ़, ऑडिट, बिल्ड और चला सकें।",
+  "what.c1":"रिले सर्वर (Rust · axum + PostgreSQL)। आपके एजेंट से इन्वेंटरी/मेट्रिक्स प्राप्त करता है, आपके ऐप को परोसता है, बाहर-सूचनाएँ आपके अपने चैनलों पर भेजता है, और हैश-चेन ऑडिट लॉग रखता है।",
+  "what.c2":"एजेंट और रिले के बीच आदान-प्रदान किए गए, प्रलेखित वायर प्रकार — खुला प्रोटोकॉल।",
+  "what.c3h":"वेब पैनल",
+  "what.c3":"एक केवल-पढ़ने योग्य पैनल और डिवाइस वेब UI तक एक रिवर्स टनल, जिसमें एजेंट को निजी IPv4 तक सीमित करने वाला SSRF गार्ड है।",
+  "why.h":"स्व-होस्ट क्यों?",
+  "why.c1h":"शून्य डेटा-अभिरक्षा","why.c1":"हम आपका स्कैन डेटा कभी प्राप्त नहीं करते। केवल वह रिले करता है जिसे आप चलाते हैं — बस वही।",
+  "why.c2h":"कोई तीसरा पक्ष नहीं","why.c2":"बाहर-सूचनाएँ आपके द्वारा कॉन्फ़िगर किए चैनलों से जाती हैं: आपका ntfy, आपका Telegram बॉट, आपका webhook।",
+  "why.c3h":"ऑडिट योग्य","why.c3":"हर पंक्ति पढ़ें। सत्यापित करें कि कोई टेलीमेट्री, कोई फोन-होम, कोई छिपा हुआ सिंक नहीं है।",
+  "qs.h":"त्वरित शुरुआत (Docker)",
+  "qs.p":"क्लोन करें, एक डेटाबेस पासवर्ड सेट करें और इसे चालू करें। रिले शुरुआत में अपने स्कीमा माइग्रेशन स्वतः लागू करता है और <code>:8080</code> पर सुनता है।",
+  "qs.after":"अपने एजेंट के <code>NETSCAN_RELAY_URL</code> को इस पर इंगित करें, फिर NetNazar ऐप के रिमोट व्यू से लॉग इन करें। वही बाइनरी एक एडमिन CLI के रूप में भी काम करती है:",
+  "how.h":"यह कैसे काम करता है",
+  "how.p":"एजेंट इन्वेंटरी और मेट्रिक्स पुश करता है (एजेंट कुंजी से प्रमाणित)। ऐप एक अपारदर्शी, हैश किए गए, समाप्त होने वाले सत्र टोकन के लिए लॉग इन करता है और नेटवर्क, डिवाइस, मेट्रिक्स, आउटेज, इवेंट और ऑडिट लॉग पढ़ता है। रिवर्स टनल ऐप को रिले के माध्यम से किसी डिवाइस के वेब UI तक पहुँचने देता है। पहले दिन से बहु-किरायेदार।",
+  "cfg.h":"कॉन्फ़िगरेशन",
+  "cfg.t1":"वेरिएबल","cfg.t2":"आवश्यक","cfg.t3":"उद्देश्य",
+  "cfg.r1":"PostgreSQL कनेक्शन स्ट्रिंग","cfg.r2":"सुनने का पता (डिफ़ॉल्ट 0.0.0.0:8080)","cfg.r3":"docker-compose द्वारा उपयोग (उत्पादन में बदलें)",
+  "cfg.note":"रहस्य (DB URL, चैनल टोकन) पर्यावरण से पढ़े जाते हैं — कभी हार्डकोड नहीं।",
+  "oc.h":"ओपन-कोर।","oc.p":"रिले और प्रोटोकॉल ओपन सोर्स हैं (AGPL-3.0), ताकि आपके सर्वर पर चलने वाला घटक पूरी तरह ऑडिट योग्य हो। NetNazar ऐप और स्कैनिंग इंजन स्वामित्व वाले हैं और App Store / Google Play / हस्ताक्षरित डेस्कटॉप बिल्ड के माध्यम से वितरित होते हैं।",
+  "lic.h":"लाइसेंस",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>। यदि आप एक संशोधित रिले को नेटवर्क सेवा के रूप में चलाते हैं, तो आपको अपने उपयोगकर्ताओं को इसका सोर्स देना होगा। यह जानबूझकर है: NetNazar पहले स्व-होस्ट है, और कोई भी इसे एक बंद वेंडर क्लाउड में नहीं बदल सकना चाहिए।",
+  "foot":"निर्माता"
+ },
+ es:{
+  "meta.title":"NetNazar Relay — autoalojado, código abierto",
+  "meta.desc":"Relay + protocolo autoalojado para NetNazar. Sin nube de terceros — tú ejecutas el servidor, tus datos nunca salen de la infraestructura que controlas. Código abierto, AGPL-3.0.",
+  "nav.app":"App NetNazar ↗",
+  "hero.pill":"Código abierto · AGPL-3.0",
+  "hero.h1":"El relay que ejecutas tú mismo.",
+  "hero.sub":"Relay + protocolo autoalojado para NetNazar, el escáner de red centrado en la privacidad. Sin nube de terceros — tus datos nunca salen de la infraestructura que controlas.",
+  "hero.cta1":"Ver código en GitHub",
+  "hero.cta2":"Inicio rápido ↓",
+  "what.h":"¿Qué es esto?",
+  "what.p":"NetNazar se ejecuta enteramente en tu dispositivo. Para la monitorización remota <em>opcional</em> — vigilar tu red doméstica desde fuera y acceder a las interfaces web de los dispositivos — usa un relay que tú autoalojas. Este repositorio es exactamente ese servidor, para que puedas leerlo, auditarlo, compilarlo y ejecutarlo tú mismo.",
+  "what.c1":"El servidor relay (Rust · axum + PostgreSQL). Recibe inventario/métricas de tu agente, los sirve a tu app, despacha notificaciones de ausencia a tus propios canales y mantiene un registro de auditoría encadenado por hash.",
+  "what.c2":"Los tipos de transmisión documentados que se intercambian entre el agente y el relay — el protocolo, a la vista.",
+  "what.c3h":"Panel web",
+  "what.c3":"Un panel de solo lectura y un túnel inverso a las interfaces web de los dispositivos, con una protección SSRF que limita al agente a IPv4 privadas.",
+  "why.h":"¿Por qué autoalojar?",
+  "why.c1h":"Cero custodia de datos","why.c1":"Nunca recibimos tus datos de escaneo. El relay que ejecutas sí — y solo eso.",
+  "why.c2h":"Sin terceros","why.c2":"Las notificaciones de ausencia pasan por canales que tú configuras: tu ntfy, tu bot de Telegram, tu webhook.",
+  "why.c3h":"Auditable","why.c3":"Lee cada línea. Verifica que no hay telemetría, ni llamadas a casa, ni sumideros ocultos.",
+  "qs.h":"Inicio rápido (Docker)",
+  "qs.p":"Clona, establece una contraseña de base de datos y arráncalo. El relay aplica sus migraciones de esquema automáticamente al iniciar y escucha en <code>:8080</code>.",
+  "qs.after":"Apunta el <code>NETSCAN_RELAY_URL</code> de tu agente hacia él y luego inicia sesión desde la vista remota de la app NetNazar. El mismo binario funciona también como CLI de administración:",
+  "how.h":"Cómo funciona",
+  "how.p":"El agente envía inventario y métricas (autenticado con una clave de agente). La app inicia sesión para obtener un token de sesión opaco, con hash y caducidad, y lee redes, dispositivos, métricas, cortes, eventos y el registro de auditoría. Un túnel inverso permite que la app llegue a la interfaz web de un dispositivo a través del relay. Multiinquilino desde el primer día.",
+  "cfg.h":"Configuración",
+  "cfg.t1":"Variable","cfg.t2":"Requerido","cfg.t3":"Propósito",
+  "cfg.r1":"Cadena de conexión PostgreSQL","cfg.r2":"Dirección de escucha (por defecto 0.0.0.0:8080)","cfg.r3":"Usado por docker-compose (cámbialo en producción)",
+  "cfg.note":"Los secretos (URL de BD, tokens de canal) se leen del entorno — nunca codificados.",
+  "oc.h":"Núcleo abierto.","oc.p":"El relay y el protocolo son de código abierto (AGPL-3.0), por lo que el componente que se ejecuta en tu servidor es totalmente auditable. La app NetNazar y el motor de escaneo son propietarios y se distribuyen por App Store / Google Play / compilaciones de escritorio firmadas.",
+  "lic.h":"Licencia",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Si ejecutas un relay modificado como servicio de red, debes ofrecer su código a tus usuarios. Es intencionado: NetNazar es autoalojado ante todo, y nadie debería poder convertirlo en una nube de terceros cerrada.",
+  "foot":"creado por"
+ },
+ fr:{
+  "meta.title":"NetNazar Relay — auto-hébergé, open source",
+  "meta.desc":"Relais + protocole auto-hébergé pour NetNazar. Pas de cloud tiers — vous exécutez le serveur, vos données ne quittent jamais l'infrastructure que vous contrôlez. Open source, AGPL-3.0.",
+  "nav.app":"App NetNazar ↗",
+  "hero.pill":"Open source · AGPL-3.0",
+  "hero.h1":"Le relais que vous hébergez vous-même.",
+  "hero.sub":"Relais + protocole auto-hébergé pour NetNazar, le scanner réseau axé sur la confidentialité. Pas de cloud tiers — vos données ne quittent jamais l'infrastructure que vous contrôlez.",
+  "hero.cta1":"Voir le code sur GitHub",
+  "hero.cta2":"Démarrage rapide ↓",
+  "what.h":"Qu'est-ce que c'est ?",
+  "what.p":"NetNazar fonctionne entièrement sur votre appareil. Pour la surveillance à distance <em>facultative</em> — surveiller votre réseau domestique de l'extérieur et accéder aux interfaces web des appareils — il utilise un relais que vous auto-hébergez. Ce dépôt est exactement ce serveur, afin que vous puissiez le lire, l'auditer, le compiler et l'exécuter vous-même.",
+  "what.c1":"Le serveur relais (Rust · axum + PostgreSQL). Reçoit l'inventaire/les métriques de votre agent, les sert à votre app, envoie les notifications d'absence vers vos propres canaux et tient un journal d'audit chaîné par hachage.",
+  "what.c2":"Les types de transmission documentés échangés entre l'agent et le relais — le protocole, à découvert.",
+  "what.c3h":"Panneau web",
+  "what.c3":"Un panneau en lecture seule et un tunnel inverse vers les interfaces web des appareils, avec une protection SSRF limitant l'agent aux IPv4 privées.",
+  "why.h":"Pourquoi auto-héberger ?",
+  "why.c1h":"Zéro garde des données","why.c1":"Nous ne recevons jamais vos données de scan. Seul le relais que vous exécutez les reçoit — et rien d'autre.",
+  "why.c2h":"Aucun tiers","why.c2":"Les notifications d'absence passent par des canaux que vous configurez : votre ntfy, votre bot Telegram, votre webhook.",
+  "why.c3h":"Auditable","why.c3":"Lisez chaque ligne. Vérifiez qu'il n'y a ni télémétrie, ni rappel à la maison, ni puits caché.",
+  "qs.h":"Démarrage rapide (Docker)",
+  "qs.p":"Clonez, définissez un mot de passe de base de données et lancez-le. Le relais applique automatiquement ses migrations de schéma au démarrage et écoute sur <code>:8080</code>.",
+  "qs.after":"Pointez le <code>NETSCAN_RELAY_URL</code> de votre agent vers lui, puis connectez-vous depuis la vue distante de l'app NetNazar. Le même binaire sert aussi de CLI d'administration :",
+  "how.h":"Comment ça marche",
+  "how.p":"L'agent envoie l'inventaire et les métriques (authentifié avec une clé d'agent). L'app se connecte pour obtenir un jeton de session opaque, haché et expirant, et lit les réseaux, appareils, métriques, pannes, événements et le journal d'audit. Un tunnel inverse permet à l'app d'atteindre l'interface web d'un appareil via le relais. Multi-locataire dès le premier jour.",
+  "cfg.h":"Configuration",
+  "cfg.t1":"Variable","cfg.t2":"Requis","cfg.t3":"Rôle",
+  "cfg.r1":"Chaîne de connexion PostgreSQL","cfg.r2":"Adresse d'écoute (par défaut 0.0.0.0:8080)","cfg.r3":"Utilisé par docker-compose (à changer en production)",
+  "cfg.note":"Les secrets (URL de BD, jetons de canal) sont lus depuis l'environnement — jamais codés en dur.",
+  "oc.h":"Cœur ouvert.","oc.p":"Le relais et le protocole sont open source (AGPL-3.0), de sorte que le composant qui tourne sur votre serveur est entièrement auditable. L'app NetNazar et le moteur de scan sont propriétaires et distribués via l'App Store / Google Play / des builds de bureau signés.",
+  "lic.h":"Licence",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Si vous exécutez un relais modifié comme service réseau, vous devez en offrir le code à vos utilisateurs. C'est intentionnel : NetNazar est avant tout auto-hébergé, et personne ne devrait pouvoir en faire un cloud tiers fermé.",
+  "foot":"réalisé par"
+ },
+ ar:{
+  "meta.title":"NetNazar Relay — مستضاف ذاتياً، مفتوح المصدر",
+  "meta.desc":"مُرحِّل + بروتوكول مستضاف ذاتياً لـ NetNazar. لا سحابة طرف ثالث — أنت تُشغّل الخادم، وبياناتك لا تغادر أبداً بنية تحتية تتحكم بها. مفتوح المصدر، AGPL-3.0.",
+  "nav.app":"تطبيق NetNazar ↗",
+  "hero.pill":"مفتوح المصدر · AGPL-3.0",
+  "hero.h1":"المُرحِّل الذي تُشغّله بنفسك.",
+  "hero.sub":"مُرحِّل + بروتوكول مستضاف ذاتياً لـ NetNazar، ماسح الشبكة الذي يضع الخصوصية أولاً. لا سحابة طرف ثالث — بياناتك لا تغادر أبداً بنية تحتية تتحكم بها.",
+  "hero.cta1":"عرض المصدر على GitHub",
+  "hero.cta2":"بداية سريعة ↓",
+  "what.h":"ما هذا؟",
+  "what.p":"يعمل NetNazar بالكامل على جهازك. للمراقبة عن بُعد <em>الاختيارية</em> — مراقبة شبكتك المنزلية من الخارج والوصول إلى واجهات الويب للأجهزة — يستخدم مُرحِّلاً تستضيفه ذاتياً. هذا المستودع هو ذلك الخادم بالضبط، لتتمكن من قراءته وتدقيقه وبنائه وتشغيله بنفسك.",
+  "what.c1":"خادم المُرحِّل (Rust · axum + PostgreSQL). يستقبل الجرد/المقاييس من وكيلك، ويقدّمها لتطبيقك، ويرسل إشعارات الغياب إلى قنواتك الخاصة، ويحتفظ بسجل تدقيق مُسلسل بالتجزئة.",
+  "what.c2":"أنواع الإرسال الموثّقة المتبادلة بين الوكيل والمُرحِّل — البروتوكول، علناً.",
+  "what.c3h":"لوحة الويب",
+  "what.c3":"لوحة للقراءة فقط ونفق عكسي إلى واجهات الويب للأجهزة، مع حماية SSRF تقصر الوكيل على عناوين IPv4 الخاصة.",
+  "why.h":"لماذا الاستضافة الذاتية؟",
+  "why.c1h":"صفر وصاية على البيانات","why.c1":"نحن لا نستقبل بيانات فحصك أبداً. المُرحِّل الذي تُشغّله هو من يستقبلها — وهو فقط.",
+  "why.c2h":"لا طرف ثالث","why.c2":"إشعارات الغياب تمرّ عبر قنوات تُعدّها أنت: ntfy خاصتك، بوت Telegram خاصتك، webhook خاصتك.",
+  "why.c3h":"قابل للتدقيق","why.c3":"اقرأ كل سطر. تحقّق من عدم وجود قياس عن بُعد أو اتصال بالمنزل أو مَصرف مخفي.",
+  "qs.h":"بداية سريعة (Docker)",
+  "qs.p":"استنسخ، عيّن كلمة مرور لقاعدة البيانات، وشغّله. يطبّق المُرحِّل ترحيلات المخطط تلقائياً عند الإقلاع ويستمع على <code>:8080</code>.",
+  "qs.after":"وجّه <code>NETSCAN_RELAY_URL</code> الخاص بوكيلك إليه، ثم سجّل الدخول من العرض البعيد في تطبيق NetNazar. الملف الثنائي نفسه يعمل أيضاً كأداة سطر أوامر إدارية:",
+  "how.h":"كيف يعمل",
+  "how.p":"يدفع الوكيل الجرد والمقاييس (موثّقاً بمفتاح وكيل). يسجّل التطبيق الدخول للحصول على رمز جلسة مبهم ومُجزّأ وينتهي، ويقرأ الشبكات والأجهزة والمقاييس والانقطاعات والأحداث وسجل التدقيق. يتيح النفق العكسي للتطبيق الوصول إلى واجهة ويب جهاز عبر المُرحِّل. متعدد المستأجرين من اليوم الأول.",
+  "cfg.h":"الإعداد",
+  "cfg.t1":"المتغيّر","cfg.t2":"مطلوب","cfg.t3":"الغرض",
+  "cfg.r1":"سلسلة اتصال PostgreSQL","cfg.r2":"عنوان الاستماع (افتراضي 0.0.0.0:8080)","cfg.r3":"يُستخدم بواسطة docker-compose (غيّره في الإنتاج)",
+  "cfg.note":"الأسرار (رابط قاعدة البيانات، رموز القنوات) تُقرأ من البيئة — لا تُضمَّن في الشيفرة أبداً.",
+  "oc.h":"نواة مفتوحة.","oc.p":"المُرحِّل والبروتوكول مفتوحا المصدر (AGPL-3.0) بحيث يكون المكوّن العامل على خادمك قابلاً للتدقيق بالكامل. تطبيق NetNazar ومحرك الفحص مملوكان ويُوزَّعان عبر App Store / Google Play / إصدارات سطح مكتب موقّعة.",
+  "lic.h":"الرخصة",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. إذا شغّلت مُرحِّلاً معدّلاً كخدمة شبكية، فيجب أن تقدّم مصدره لمستخدميك. هذا مقصود: NetNazar مستضاف ذاتياً أولاً، ولا ينبغي لأحد أن يحوّله إلى سحابة طرف ثالث مغلقة.",
+  "foot":"صُنع بواسطة"
+ },
+ pt:{
+  "meta.title":"NetNazar Relay — auto-hospedado, código aberto",
+  "meta.desc":"Relay + protocolo auto-hospedado para o NetNazar. Sem nuvem de terceiros — você executa o servidor, seus dados nunca saem da infraestrutura que você controla. Código aberto, AGPL-3.0.",
+  "nav.app":"App NetNazar ↗",
+  "hero.pill":"Código aberto · AGPL-3.0",
+  "hero.h1":"O relay que você mesmo executa.",
+  "hero.sub":"Relay + protocolo auto-hospedado para o NetNazar, o scanner de rede focado em privacidade. Sem nuvem de terceiros — seus dados nunca saem da infraestrutura que você controla.",
+  "hero.cta1":"Ver código no GitHub",
+  "hero.cta2":"Início rápido ↓",
+  "what.h":"O que é isto?",
+  "what.p":"O NetNazar roda inteiramente no seu dispositivo. Para o monitoramento remoto <em>opcional</em> — observar sua rede doméstica de fora e acessar as interfaces web dos dispositivos — ele usa um relay que você auto-hospeda. Este repositório é exatamente esse servidor, para que você possa lê-lo, auditá-lo, compilá-lo e executá-lo você mesmo.",
+  "what.c1":"O servidor relay (Rust · axum + PostgreSQL). Recebe inventário/métricas do seu agente, serve-os ao seu app, despacha notificações de ausência para os seus próprios canais e mantém um log de auditoria encadeado por hash.",
+  "what.c2":"Os tipos de transmissão documentados trocados entre o agente e o relay — o protocolo, à vista.",
+  "what.c3h":"Painel web",
+  "what.c3":"Um painel somente-leitura e um túnel reverso para as interfaces web dos dispositivos, com uma proteção SSRF que limita o agente a IPv4 privados.",
+  "why.h":"Por que auto-hospedar?",
+  "why.c1h":"Zero custódia de dados","why.c1":"Nunca recebemos os seus dados de varredura. Apenas o relay que você executa recebe — e só ele.",
+  "why.c2h":"Sem terceiros","why.c2":"As notificações de ausência passam por canais que você configura: o seu ntfy, o seu bot do Telegram, o seu webhook.",
+  "why.c3h":"Auditável","why.c3":"Leia cada linha. Verifique que não há telemetria, nem phone-home, nem sumidouro oculto.",
+  "qs.h":"Início rápido (Docker)",
+  "qs.p":"Clone, defina uma senha de banco de dados e suba. O relay aplica suas migrações de esquema automaticamente na inicialização e escuta em <code>:8080</code>.",
+  "qs.after":"Aponte o <code>NETSCAN_RELAY_URL</code> do seu agente para ele e então faça login pela visão remota do app NetNazar. O mesmo binário também funciona como CLI de administração:",
+  "how.h":"Como funciona",
+  "how.p":"O agente envia inventário e métricas (autenticado com uma chave de agente). O app faz login para obter um token de sessão opaco, com hash e expiração, e lê redes, dispositivos, métricas, quedas, eventos e o log de auditoria. Um túnel reverso permite que o app alcance a interface web de um dispositivo através do relay. Multilocatário desde o primeiro dia.",
+  "cfg.h":"Configuração",
+  "cfg.t1":"Variável","cfg.t2":"Obrigatória","cfg.t3":"Finalidade",
+  "cfg.r1":"String de conexão PostgreSQL","cfg.r2":"Endereço de escuta (padrão 0.0.0.0:8080)","cfg.r3":"Usado pelo docker-compose (altere em produção)",
+  "cfg.note":"Segredos (URL do BD, tokens de canal) são lidos do ambiente — nunca codificados.",
+  "oc.h":"Núcleo aberto.","oc.p":"O relay e o protocolo são de código aberto (AGPL-3.0), de modo que o componente que roda no seu servidor é totalmente auditável. O app NetNazar e o motor de varredura são proprietários e distribuídos via App Store / Google Play / builds de desktop assinados.",
+  "lic.h":"Licença",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Se você executar um relay modificado como serviço de rede, deve oferecer o código aos seus usuários. Isto é intencional: o NetNazar é auto-hospedado em primeiro lugar, e ninguém deveria poder transformá-lo numa nuvem de terceiros fechada.",
+  "foot":"feito por"
+ },
+ ru:{
+  "meta.title":"NetNazar Relay — самостоятельный хостинг, открытый код",
+  "meta.desc":"Самостоятельно размещаемый ретранслятор + протокол для NetNazar. Без облака стороннего поставщика — сервер запускаете вы, ваши данные никогда не покидают подконтрольную вам инфраструктуру. Открытый код, AGPL-3.0.",
+  "nav.app":"Приложение NetNazar ↗",
+  "hero.pill":"Открытый код · AGPL-3.0",
+  "hero.h1":"Ретранслятор, который вы запускаете сами.",
+  "hero.sub":"Самостоятельно размещаемый ретранслятор + протокол для NetNazar, сетевого сканера с приоритетом конфиденциальности. Без облака стороннего поставщика — ваши данные никогда не покидают подконтрольную вам инфраструктуру.",
+  "hero.cta1":"Посмотреть код на GitHub",
+  "hero.cta2":"Быстрый старт ↓",
+  "what.h":"Что это?",
+  "what.p":"NetNazar работает полностью на вашем устройстве. Для <em>необязательного</em> удалённого мониторинга — наблюдения за домашней сетью извне и доступа к веб-интерфейсам устройств — он использует ретранслятор, который вы размещаете сами. Этот репозиторий и есть тот самый сервер, чтобы вы могли прочитать, проверить, собрать и запустить его сами.",
+  "what.c1":"Сервер-ретранслятор (Rust · axum + PostgreSQL). Принимает инвентаризацию/метрики от вашего агента, отдаёт их вашему приложению, рассылает уведомления об отсутствии в ваши собственные каналы и ведёт журнал аудита, связанный хешами.",
+  "what.c2":"Документированные типы передачи, которыми обмениваются агент и ретранслятор — открытый протокол.",
+  "what.c3h":"Веб-панель",
+  "what.c3":"Панель только для чтения и обратный туннель к веб-интерфейсам устройств с защитой SSRF, ограничивающей агента приватными IPv4.",
+  "why.h":"Зачем самостоятельный хостинг?",
+  "why.c1h":"Ноль хранения данных","why.c1":"Мы никогда не получаем ваши данные сканирования. Их получает только ретранслятор, который вы запускаете — и только он.",
+  "why.c2h":"Без третьих сторон","why.c2":"Уведомления об отсутствии идут через каналы, которые вы настраиваете: ваш ntfy, ваш бот Telegram, ваш webhook.",
+  "why.c3h":"Проверяемо","why.c3":"Читайте каждую строку. Убедитесь, что нет телеметрии, обращений домой и скрытых стоков.",
+  "qs.h":"Быстрый старт (Docker)",
+  "qs.p":"Клонируйте, задайте пароль базы данных и запустите. Ретранслятор автоматически применяет миграции схемы при старте и слушает на <code>:8080</code>.",
+  "qs.after":"Направьте <code>NETSCAN_RELAY_URL</code> вашего агента на него, затем войдите из удалённого вида приложения NetNazar. Тот же бинарник работает и как административный CLI:",
+  "how.h":"Как это работает",
+  "how.p":"Агент отправляет инвентаризацию и метрики (с аутентификацией ключом агента). Приложение входит для получения непрозрачного, хешированного, истекающего токена сессии и читает сети, устройства, метрики, простои, события и журнал аудита. Обратный туннель позволяет приложению добраться до веб-интерфейса устройства через ретранслятор. Мультиарендность с первого дня.",
+  "cfg.h":"Конфигурация",
+  "cfg.t1":"Переменная","cfg.t2":"Обязательна","cfg.t3":"Назначение",
+  "cfg.r1":"Строка подключения PostgreSQL","cfg.r2":"Адрес прослушивания (по умолчанию 0.0.0.0:8080)","cfg.r3":"Используется docker-compose (измените в продакшене)",
+  "cfg.note":"Секреты (URL БД, токены каналов) читаются из окружения — никогда не зашиты в код.",
+  "oc.h":"Открытое ядро.","oc.p":"Ретранслятор и протокол открыты (AGPL-3.0), поэтому компонент, работающий на вашем сервере, полностью проверяем. Приложение NetNazar и движок сканирования проприетарны и распространяются через App Store / Google Play / подписанные сборки для ПК.",
+  "lic.h":"Лицензия",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Если вы запускаете изменённый ретранслятор как сетевой сервис, вы обязаны предоставить пользователям его исходный код. Это сделано намеренно: NetNazar прежде всего для самостоятельного хостинга, и никто не должен превратить его в закрытое облако поставщика.",
+  "foot":"создано"
+ },
+ ja:{
+  "meta.title":"NetNazar Relay — セルフホスト、オープンソース",
+  "meta.desc":"NetNazar 向けのセルフホスト型リレー + プロトコル。ベンダークラウドなし——サーバーはあなたが運用し、データはあなたが管理するインフラから決して出ません。オープンソース、AGPL-3.0。",
+  "nav.app":"NetNazar アプリ ↗",
+  "hero.pill":"オープンソース · AGPL-3.0",
+  "hero.h1":"あなた自身が運用するリレー。",
+  "hero.sub":"プライバシー優先のネットワークスキャナー NetNazar 向けのセルフホスト型リレー + プロトコル。ベンダークラウドなし——データはあなたが管理するインフラから決して出ません。",
+  "hero.cta1":"GitHub でソースを見る",
+  "hero.cta2":"クイックスタート ↓",
+  "what.h":"これは何？",
+  "what.p":"NetNazar は完全にあなたの端末上で動作します。<em>任意の</em>リモート監視——外部から自宅ネットワークを見守り、端末の Web UI にアクセスする——には、あなたがセルフホストするリレーを使います。このリポジトリはまさにそのサーバーであり、あなた自身で読み、監査し、ビルドし、実行できます。",
+  "what.c1":"リレーサーバー（Rust · axum + PostgreSQL）。あなたのエージェントからインベントリ／メトリクスを受け取り、アプリに提供し、不在通知をあなた自身のチャネルへ送り、ハッシュ連鎖の監査ログを保持します。",
+  "what.c2":"エージェントとリレーの間でやり取りされる、文書化されたワイヤ型——公開されたプロトコル。",
+  "what.c3h":"Web パネル",
+  "what.c3":"読み取り専用パネルと、端末 Web UI への逆トンネル。エージェントをプライベート IPv4 に制限する SSRF ガード付き。",
+  "why.h":"なぜセルフホスト？",
+  "why.c1h":"データ保管ゼロ","why.c1":"私たちはあなたのスキャンデータを決して受け取りません。受け取るのはあなたが運用するリレーだけ——それのみです。",
+  "why.c2h":"第三者なし","why.c2":"不在通知はあなたが設定したチャネルを通ります：あなたの ntfy、あなたの Telegram ボット、あなたの webhook。",
+  "why.c3h":"監査可能","why.c3":"一行ずつ読んでください。テレメトリも、ホームへの送信も、隠れたデータ出口もないことを確認できます。",
+  "qs.h":"クイックスタート（Docker）",
+  "qs.p":"クローンし、データベースのパスワードを設定して起動します。リレーは起動時にスキーマのマイグレーションを自動適用し、<code>:8080</code> で待ち受けます。",
+  "qs.after":"エージェントの <code>NETSCAN_RELAY_URL</code> をこれに向け、NetNazar アプリのリモートビューからログインします。同じバイナリは管理用 CLI としても機能します：",
+  "how.h":"仕組み",
+  "how.p":"エージェントがインベントリとメトリクスをプッシュします（エージェントキーで認証）。アプリは不透明・ハッシュ化・有効期限付きのセッショントークンのためにログインし、ネットワーク・端末・メトリクス・障害・イベント・監査ログを読み取ります。逆トンネルにより、アプリはリレー経由で端末の Web UI にアクセスできます。初日からマルチテナント。",
+  "cfg.h":"設定",
+  "cfg.t1":"変数","cfg.t2":"必須","cfg.t3":"目的",
+  "cfg.r1":"PostgreSQL 接続文字列","cfg.r2":"待ち受けアドレス（既定 0.0.0.0:8080）","cfg.r3":"docker-compose が使用（本番では変更）",
+  "cfg.note":"シークレット（DB URL、チャネルトークン）は環境から読み込まれます——ハードコードは決してしません。",
+  "oc.h":"オープンコア。","oc.p":"リレーとプロトコルはオープンソース（AGPL-3.0）なので、あなたのサーバーで動くコンポーネントは完全に監査可能です。NetNazar アプリとスキャンエンジンはプロプライエタリで、App Store / Google Play / 署名済みデスクトップビルドで配布されます。",
+  "lic.h":"ライセンス",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>。改変したリレーをネットワークサービスとして運用する場合、利用者にそのソースを提供しなければなりません。これは意図的です：NetNazar はセルフホスト第一であり、誰もこれを閉じたベンダークラウドに変えられてはなりません。",
+  "foot":"制作"
+ },
+ de:{
+  "meta.title":"NetNazar Relay — selbst gehostet, Open Source",
+  "meta.desc":"Selbst gehostetes Relay + Protokoll für NetNazar. Keine Anbieter-Cloud — du betreibst den Server, deine Daten verlassen nie die von dir kontrollierte Infrastruktur. Open Source, AGPL-3.0.",
+  "nav.app":"NetNazar-App ↗",
+  "hero.pill":"Open Source · AGPL-3.0",
+  "hero.h1":"Das Relay, das du selbst betreibst.",
+  "hero.sub":"Selbst gehostetes Relay + Protokoll für NetNazar, den datenschutzorientierten Netzwerk-Scanner. Keine Anbieter-Cloud — deine Daten verlassen nie die von dir kontrollierte Infrastruktur.",
+  "hero.cta1":"Quellcode auf GitHub ansehen",
+  "hero.cta2":"Schnellstart ↓",
+  "what.h":"Was ist das?",
+  "what.p":"NetNazar läuft vollständig auf deinem Gerät. Für die <em>optionale</em> Fernüberwachung — dein Heimnetzwerk von außen beobachten und auf Geräte-Weboberflächen zugreifen — nutzt es ein Relay, das du selbst hostest. Dieses Repository ist genau dieser Server, sodass du ihn selbst lesen, prüfen, bauen und betreiben kannst.",
+  "what.c1":"Der Relay-Server (Rust · axum + PostgreSQL). Empfängt Inventar/Metriken von deinem Agenten, stellt sie deiner App bereit, versendet Abwesenheitsbenachrichtigungen an deine eigenen Kanäle und führt ein hash-verkettetes Audit-Log.",
+  "what.c2":"Die dokumentierten Wire-Typen, die zwischen Agent und Relay ausgetauscht werden — das Protokoll, offen.",
+  "what.c3h":"Web-Panel",
+  "what.c3":"Ein schreibgeschütztes Panel und ein Reverse-Tunnel zu Geräte-Weboberflächen, mit einem SSRF-Schutz, der den Agenten auf private IPv4 beschränkt.",
+  "why.h":"Warum selbst hosten?",
+  "why.c1h":"Null Datenverwahrung","why.c1":"Wir erhalten deine Scandaten nie. Nur das Relay, das du betreibst — und sonst nichts.",
+  "why.c2h":"Keine Dritten","why.c2":"Abwesenheitsbenachrichtigungen laufen über Kanäle, die du konfigurierst: dein ntfy, dein Telegram-Bot, dein Webhook.",
+  "why.c3h":"Prüfbar","why.c3":"Lies jede Zeile. Überprüfe, dass es keine Telemetrie, kein Phone-Home und keine verborgene Datensenke gibt.",
+  "qs.h":"Schnellstart (Docker)",
+  "qs.p":"Klonen, ein Datenbankpasswort setzen und hochfahren. Das Relay wendet seine Schema-Migrationen beim Start automatisch an und lauscht auf <code>:8080</code>.",
+  "qs.after":"Richte die <code>NETSCAN_RELAY_URL</code> deines Agenten darauf, und melde dich dann aus der Remote-Ansicht der NetNazar-App an. Dasselbe Binary dient auch als Admin-CLI:",
+  "how.h":"Wie es funktioniert",
+  "how.p":"Der Agent pusht Inventar und Metriken (mit einem Agent-Schlüssel authentifiziert). Die App meldet sich für ein undurchsichtiges, gehashtes, ablaufendes Sitzungstoken an und liest Netzwerke, Geräte, Metriken, Ausfälle, Ereignisse und das Audit-Log. Ein Reverse-Tunnel lässt die App über das Relay auf die Weboberfläche eines Geräts zugreifen. Mandantenfähig vom ersten Tag an.",
+  "cfg.h":"Konfiguration",
+  "cfg.t1":"Variable","cfg.t2":"Erforderlich","cfg.t3":"Zweck",
+  "cfg.r1":"PostgreSQL-Verbindungszeichenfolge","cfg.r2":"Lausch-Adresse (Standard 0.0.0.0:8080)","cfg.r3":"Von docker-compose verwendet (in Produktion ändern)",
+  "cfg.note":"Geheimnisse (DB-URL, Kanal-Token) werden aus der Umgebung gelesen — nie fest codiert.",
+  "oc.h":"Open Core.","oc.p":"Relay und Protokoll sind Open Source (AGPL-3.0), sodass die auf deinem Server laufende Komponente vollständig prüfbar ist. Die NetNazar-App und die Scan-Engine sind proprietär und werden über App Store / Google Play / signierte Desktop-Builds ausgeliefert.",
+  "lic.h":"Lizenz",
+  "lic.p":"<a href=\"https://github.com/dogukangecko/netnazar-relay/blob/master/LICENSE\">AGPL-3.0</a>. Wenn du ein modifiziertes Relay als Netzwerkdienst betreibst, musst du deinen Nutzern dessen Quellcode anbieten. Das ist beabsichtigt: NetNazar ist zuerst selbst gehostet, und niemand soll daraus eine geschlossene Anbieter-Cloud machen können.",
+  "foot":"erstellt von"
+ }
+};
+(function(){
+  const sel=document.getElementById('lang');
+  LANGS.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;sel.appendChild(o);});
+  function apply(l){
+    const d=I18N[l]||I18N.en;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n'); if(d[k]!=null) el.innerHTML=d[k];});
+    document.documentElement.lang=l;
+    document.documentElement.dir=(l==='ar')?'rtl':'ltr';
+    if(d['meta.title']) document.title=d['meta.title'];
+    const md=document.querySelector('meta[name="description"]'); if(md&&d['meta.desc']) md.setAttribute('content',d['meta.desc']);
+    sel.value=l; try{localStorage.setItem('nn_lang',l);}catch(e){}
+  }
+  let l; try{l=localStorage.getItem('nn_lang');}catch(e){}
+  if(!l){const b=(navigator.language||'en').slice(0,2).toLowerCase(); l=I18N[b]?b:'en';}
+  apply(l);
+  sel.addEventListener('change',()=>apply(sel.value));
+})();
+</script>
+</body>
+</html>
