@@ -1,0 +1,3 @@
+[workspace]
+members = ["netscan-proto", "netscan-relay"]
+resolver = "2"

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetNazar 🧿</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --amber: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 { font-size: 1.2rem; margin: 0; font-weight: 600; }
+  header .spacer { flex: 1; }
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  h2 { font-size: 1rem; margin: 0 0 12px; color: var(--fg); }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin: 8px 0 4px; }
+  input, select, button {
+    font: inherit;
+    color: var(--fg);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    width: 100%;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.ghost {
+    background: var(--bg3);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    width: auto;
+    margin-top: 0;
+    padding: 6px 12px;
+    font-weight: 500;
+  }
+  .err { color: var(--red); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+  th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  .table-wrap { overflow-x: auto; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .pill.on { background: rgba(63,185,80,.15); color: var(--green); }
+  .pill.off { background: rgba(139,148,158,.15); color: var(--muted); }
+  .pill.open { background: rgba(248,81,73,.15); color: var(--red); }
+  .pill.closed { background: rgba(63,185,80,.15); color: var(--green); }
+  .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .metric {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+  }
+  .metric .val { font-size: 1.5rem; font-weight: 700; }
+  .metric .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .net-item {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: var(--bg3);
+  }
+  .net-item:hover { border-color: var(--accent); }
+  .net-item.sel { border-color: var(--accent); background: rgba(88,166,255,.08); }
+  .net-item .name { font-weight: 600; }
+  .net-item .sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .muted { color: var(--muted); font-size: 0.88rem; }
+  .hidden { display: none; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .ev-msg { white-space: normal; max-width: none; }
+  @media (max-width: 600px) {
+    .metrics-grid { grid-template-columns: 1fr 1fr 1fr; }
+    th, td { max-width: 140px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>NetNazar 🧿</h1>
+  <div class="spacer"></div>
+  <button id="logoutBtn" class="ghost hidden">Çıkış</button>
+</header>
+
+<main>
+  <!-- Login -->
+  <section id="loginView" class="card hidden">
+    <h2>Giriş</h2>
+    <label for="email">E-posta</label>
+    <input id="email" type="email" autocomplete="username" placeholder="ornek@mail.com">
+    <label for="password">Parola</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button id="loginBtn">Giriş yap</button>
+    <div id="loginErr" class="err"></div>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dashView" class="hidden">
+    <div class="card">
+      <h2>Ağlar</h2>
+      <div id="netList"><p class="muted">Yükleniyor…</p></div>
+    </div>
+
+    <div id="detail" class="hidden">
+      <div class="card">
+        <h2>İnternet metrikleri (son örnek)</h2>
+        <div class="metrics-grid">
+          <div class="metric"><div id="mRtt" class="val">—</div><div class="lbl">RTT (ms)</div></div>
+          <div class="metric"><div id="mJitter" class="val">—</div><div class="lbl">Jitter (ms)</div></div>
+          <div class="metric"><div id="mLoss" class="val">—</div><div class="lbl">Kayıp (%)</div></div>
+        </div>
+        <p id="mTs" class="muted" style="margin:10px 0 0;"></p>
+      </div>
+
+      <div class="card">
+        <h2>Cihazlar</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ad</th><th>IP</th><th>MAC</th><th>Durum</th></tr></thead>
+            <tbody id="devBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Kesintiler (internet)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Başlangıç</th><th>Bitiş</th><th>Süre</th><th>Durum</th></tr></thead>
+            <tbody id="outBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Son olaylar</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Zaman</th><th>Tür</th><th>Mesaj</th></tr></thead>
+            <tbody id="evBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOKEN_KEY = "netnazar_token";
+  var token = localStorage.getItem(TOKEN_KEY) || null;
+  var selectedNet = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function show(el) { el.classList.remove("hidden"); }
+  function hide(el) { el.classList.add("hidden"); }
+
+  // Token yalnız Authorization header'ında; URL'ye asla konmaz.
+  function api(path) {
+    return fetch(path, {
+      headers: { "Authorization": "Bearer " + token }
+    }).then(function (res) {
+      if (res.status === 401) {
+        doLogout();
+        throw new Error("Oturum süresi doldu, tekrar giriş yapın.");
+      }
+      if (!res.ok) { throw new Error("İstek başarısız (" + res.status + ")"); }
+      return res.json();
+    });
+  }
+
+  function fmtTs(sec) {
+    if (sec === null || sec === undefined) { return "—"; }
+    var d = new Date(sec * 1000);
+    return d.toLocaleString();
+  }
+
+  function fmtDur(start, end) {
+    if (end === null || end === undefined) { return "sürüyor"; }
+    var s = Math.max(0, end - start);
+    var m = Math.floor(s / 60), r = s % 60;
+    if (m === 0) { return r + "s"; }
+    var h = Math.floor(m / 60), rm = m % 60;
+    if (h === 0) { return m + "d " + r + "s"; }
+    return h + "sa " + rm + "d";
+  }
+
+  function fmtNum(n) {
+    if (n === null || n === undefined) { return "—"; }
+    return (Math.round(n * 10) / 10).toString();
+  }
+
+  // Güvenli hücre: değer textContent ile yazılır (XSS yok).
+  function cell(text) {
+    var td = document.createElement("td");
+    td.textContent = (text === null || text === undefined || text === "") ? "—" : String(text);
+    return td;
+  }
+
+  function pillCell(text, cls) {
+    var td = document.createElement("td");
+    var span = document.createElement("span");
+    span.className = "pill " + cls;
+    span.textContent = text;
+    td.appendChild(span);
+    return td;
+  }
+
+  function clear(el) { while (el.firstChild) { el.removeChild(el.firstChild); } }
+
+  // ---- Views ----
+  function showLogin() {
+    hide($("dashView"));
+    hide($("logoutBtn"));
+    show($("loginView"));
+  }
+
+  function showDash() {
+    hide($("loginView"));
+    show($("dashView"));
+    show($("logoutBtn"));
+    loadNetworks();
+  }
+
+  function doLogout() {
+    token = null;
+    selectedNet = null;
+    localStorage.removeItem(TOKEN_KEY);
+    showLogin();
+  }
+
+  // ---- Login ----
+  function doLogin() {
+    var email = $("email").value.trim();
+    var password = $("password").value;
+    $("loginErr").textContent = "";
+    if (!email || !password) {
+      $("loginErr").textContent = "E-posta ve parola gerekli.";
+      return;
+    }
+    fetch("/v1/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password })
+    }).then(function (res) {
+      if (res.status === 401) { throw new Error("E-posta veya parola hatalı."); }
+      if (!res.ok) { throw new Error("Giriş başarısız (" + res.status + ")"); }
+      return res.json();
+    }).then(function (data) {
+      token = data.token;
+      localStorage.setItem(TOKEN_KEY, token);
+      $("password").value = "";
+      showDash();
+    }).catch(function (e) {
+      $("loginErr").textContent = e.message;
+    });
+  }
+
+  // ---- Networks ----
+  function loadNetworks() {
+    var list = $("netList");
+    clear(list);
+    var p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "Yükleniyor…";
+    list.appendChild(p);
+
+    api("/v1/networks").then(function (nets) {
+      clear(list);
+      if (!nets.length) {
+        var em = document.createElement("p");
+        em.className = "muted";
+        em.textContent = "Henüz ağ yok.";
+        list.appendChild(em);
+        return;
+      }
+      nets.forEach(function (n) {
+        var item = document.createElement("div");
+        item.className = "net-item";
+        if (selectedNet === n.id) { item.classList.add("sel"); }
+
+        var name = document.createElement("div");
+        name.className = "name";
+        name.textContent = n.name || n.subnet || n.id;
+
+        var sub = document.createElement("div");
+        sub.className = "sub";
+        sub.textContent = (n.subnet || "—") + " · " +
+          (n.online_count || 0) + "/" + (n.device_count || 0) + " çevrimiçi · " +
+          "son: " + fmtTs(n.last_seen);
+
+        item.appendChild(name);
+        item.appendChild(sub);
+        item.addEventListener("click", function () { selectNetwork(n.id); });
+        list.appendChild(item);
+      });
+    }).catch(function (e) {
+      clear(list);
+      var em = document.createElement("p");
+      em.className = "err";
+      em.textContent = e.message;
+      list.appendChild(em);
+    });
+  }
+
+  function selectNetwork(id) {
+    selectedNet = id;
+    // Seçili vurgusunu güncelle.
+    var items = document.querySelectorAll(".net-item");
+    items.forEach(function (el) { el.classList.remove("sel"); });
+    // Yeniden işaretle: tıklanan öğeyi bul.
+    loadNetworks();
+    show($("detail"));
+    loadMetrics(id);
+    loadDevices(id);
+    loadOutages(id);
+    loadEvents();
+  }
+
+  // ---- Metrics ----
+  function loadMetrics(id) {
+    $("mRtt").textContent = "…";
+    $("mJitter").textContent = "…";
+    $("mLoss").textContent = "…";
+    $("mTs").textContent = "";
+    api("/v1/networks/" + encodeURIComponent(id) + "/metrics?target=internet&limit=1")
+      .then(function (samples) {
+        if (!samples.length) {
+          $("mRtt").textContent = "—";
+          $("mJitter").textContent = "—";
+          $("mLoss").textContent = "—";
+          $("mTs").textContent = "Henüz metrik yok.";
+          return;
+        }
+        var s = samples[samples.length - 1];
+        $("mRtt").textContent = fmtNum(s.rtt_ms);
+        $("mJitter").textContent = fmtNum(s.jitter_ms);
+        $("mLoss").textContent = fmtNum(s.loss_pct);
+        $("mTs").textContent = "Son örnek: " + fmtTs(s.ts);
+      }).catch(function (e) {
+        $("mTs").textContent = e.message;
+      });
+  }
+
+  // ---- Devices ----
+  function loadDevices(id) {
+    var body = $("devBody");
+    clear(body);
+    api("/v1/networks/" + encodeURIComponent(id) + "/devices").then(function (devs) {
+      clear(body);
+      if (!devs.length) {
+        var tr = document.createElement("tr");
+        var td = cell("Cihaz yok.");
+        td.colSpan = 4;
+        tr.appendChild(td);
+        body.appendChild(tr);
+        return;
+      }
+      devs.forEach(function (d) {
+        var tr = document.createElement("tr");
+        tr.appendChild(cell(d.hostname || d.vendor));
+        tr.appendChild(cell(d.ip));
+        tr.appendChild(cell(d.mac));
+        tr.appendChild(d.is_online ? pillCell("çevrimiçi", "on") : pillCell("çevrimdışı", "off"));
+        body.appendChild(tr);
+      });
+    }).catch(function (e) {
+      clear(body);
+      var tr = document.createElement("tr");
+      var td = cell(e.message);
+      td.colSpan = 4;
+      tr.appendChild(td);
+      body.appendChild(tr);
+    });
+  }
+
+  // ---- Outages ----
+  function loadOutages(id) {
+    var body = $("outBody");
+    clear(body);
+    api("/v1/networks/" + encodeURIComponent(id) + "/outages?target=internet")
+      .then(function (outs) {
+        clear(body);
+        if (!outs.length) {
+          var tr = document.createElement("tr");
+          var td = cell("Kesinti yok.");
+          td.colSpan = 4;
+          tr.appendChild(td);
+          body.appendChild(tr);
+          return;
+        }
+        outs.forEach(function (o) {
+          var tr = document.createElement("tr");
+          tr.appendChild(cell(fmtTs(o.started_ts)));
+          tr.appendChild(cell(o.ended_ts ? fmtTs(o.ended_ts) : "—"));
+          tr.appendChild(cell(fmtDur(o.started_ts, o.ended_ts)));
+          tr.appendChild(o.ended_ts ? pillCell("kapandı", "closed") : pillCell("açık", "open"));
+          body.appendChild(tr);
+        });
+      }).catch(function (e) {
+        clear(body);
+        var tr = document.createElement("tr");
+        var td = cell(e.message);
+        td.colSpan = 4;
+        tr.appendChild(td);
+        body.appendChild(tr);
+      });
+  }
+
+  // ---- Events ----
+  function loadEvents() {
+    var body = $("evBody");
+    clear(body);
+    api("/v1/events").then(function (evs) {
+      clear(body);
+      if (!evs.length) {
+        var tr = document.createElement("tr");
+        var td = cell("Olay yok.");
+        td.colSpan = 3;
+        tr.appendChild(td);
+        body.appendChild(tr);
+        return;
+      }
+      evs.forEach(function (ev) {
+        var tr = document.createElement("tr");
+        tr.appendChild(cell(fmtTs(ev.ts)));
+        tr.appendChild(cell(ev.kind));
+        var msg = cell(ev.message);
+        msg.className = "ev-msg";
+        tr.appendChild(msg);
+        body.appendChild(tr);
+      });
+    }).catch(function (e) {
+      clear(body);
+      var tr = document.createElement("tr");
+      var td = cell(e.message);
+      td.colSpan = 3;
+      tr.appendChild(td);
+      body.appendChild(tr);
+    });
+  }
+
+  // ---- Wire up ----
+  $("loginBtn").addEventListener("click", doLogin);
+  $("password").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { doLogin(); }
+  });
+  $("logoutBtn").addEventListener("click", doLogout);
+
+  if (token) { showDash(); } else { showLogin(); }
+})();
+</script>
+</body>
+</html>
