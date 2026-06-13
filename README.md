@@ -32,6 +32,8 @@ For **optional remote monitoring** (watch your home network from outside, reach 
 
 ## Quick start (Docker)
 
+No compiling needed — `docker-compose.yml` pulls a **prebuilt multi-arch image** (`linux/amd64` + `linux/arm64`, so it runs on a Raspberry Pi / ARM NAS as-is) from GHCR:
+
 ```bash
 git clone https://github.com/dogukangecko/netnazar-relay.git
 cd netnazar-relay
@@ -39,10 +41,14 @@ cd netnazar-relay
 # Strongly recommended: set a real DB password in production.
 export NETSCAN_DB_PASSWORD="$(openssl rand -hex 16)"
 
-docker compose up -d --build      # starts PostgreSQL + relay on :8080
+docker compose up -d              # pulls ghcr.io/dogukangecko/netnazar-relay + PostgreSQL on :8080
 ```
 
+Or pull the image directly: `docker pull ghcr.io/dogukangecko/netnazar-relay:latest`.
+
 The relay listens on `:8080` and applies its schema migrations automatically on startup. Point your agent's `NETSCAN_RELAY_URL` at it, then log in from the NetNazar app's remote view.
+
+> Prefer to build it yourself? Uncomment the `build:` line in `docker-compose.yml` and run `docker compose up -d --build`.
 
 ## Build from source
 

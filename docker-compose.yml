@@ -13,7 +13,11 @@ services:
     restart: unless-stopped
 
   relay:
-    build: { context: ., dockerfile: docker/relay.Dockerfile }
+    # Varsayılan: hazır çok-mimarili imaj (amd64 + arm64/Raspberry Pi) — sıfırdan derleme yok.
+    image: ghcr.io/dogukangecko/netnazar-relay:latest
+    # Kaynaktan derlemek isterseniz üstteki image satırını silip aşağıdakini açın
+    # (ve `docker compose up -d --build` çalıştırın):
+    # build: { context: ., dockerfile: docker/relay.Dockerfile }
     depends_on: [db]
     environment:
       NETSCAN_DATABASE_URL: postgres://netscan:${NETSCAN_DB_PASSWORD:-netscan}@db:5432/netscan

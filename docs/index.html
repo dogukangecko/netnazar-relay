@@ -115,8 +115,9 @@ cd netnazar-relay
 <span class="c"># set a real DB password in production</span>
 export NETSCAN_DB_PASSWORD=<span class="k">"$(openssl rand -hex 16)"</span>
 
-<span class="c"># PostgreSQL + relay on :8080</span>
-docker compose up -d --build</pre>
+<span class="c"># PostgreSQL + relay on :8080 — pulls the prebuilt</span>
+<span class="c"># multi-arch image (amd64 + arm64/Pi), no compiling</span>
+docker compose up -d</pre>
     <p class="lead" data-i18n="qs.after">Point your agent's <code>NETSCAN_RELAY_URL</code> at it, then log in from the NetNazar app's remote view. The same binary doubles as an admin CLI:</p>
 <pre>netscan-relay enroll                          <span class="c"># agent id + push key</span>
 netscan-relay create-user --email you@example.com --password '...'
