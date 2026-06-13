@@ -96,7 +96,7 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let addr = std::env::var("NETSCAN_BIND").unwrap_or_else(|_| "0.0.0.0:8080".into());
+    let addr = std::env::var("NETSCAN_BIND").unwrap_or_else(|_| "0.0.0.0:8765".into());
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     println!("relay dinliyor: {addr}");
     axum::serve(listener, build_router(AppState { pool, tunnel: Registry::new() })).await?;

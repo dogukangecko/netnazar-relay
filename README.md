@@ -41,12 +41,12 @@ cd netnazar-relay
 # Strongly recommended: set a real DB password in production.
 export NETSCAN_DB_PASSWORD="$(openssl rand -hex 16)"
 
-docker compose up -d              # pulls ghcr.io/dogukangecko/netnazar-relay + PostgreSQL on :8080
+docker compose up -d              # pulls ghcr.io/dogukangecko/netnazar-relay + PostgreSQL on :8765
 ```
 
 Or pull the image directly: `docker pull ghcr.io/dogukangecko/netnazar-relay:latest`.
 
-The relay listens on `:8080` and applies its schema migrations automatically on startup. Point your agent's `NETSCAN_RELAY_URL` at it, then log in from the NetNazar app's remote view.
+The relay listens on `:8765` (an uncommon port, chosen so it won't clash with the many apps that use 8080; change it with `NETSCAN_RELAY_PORT`). PostgreSQL is **not** published to the host at all — the relay reaches it over the internal Docker network, so there is no 5432 conflict either. It applies its schema migrations automatically on startup. Point your agent's `NETSCAN_RELAY_URL` at it, then log in from the NetNazar app's remote view.
 
 > Prefer to build it yourself? Uncomment the `build:` line in `docker-compose.yml` and run `docker compose up -d --build`.
 
@@ -73,7 +73,7 @@ netscan-relay add-channel --kind ntfy ...     # wire up an away-notification cha
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
 | `NETSCAN_DATABASE_URL` | ✅ | — | PostgreSQL connection string |
-| `NETSCAN_BIND` | | `0.0.0.0:8080` | listen address |
+| `NETSCAN_BIND` | | `0.0.0.0:8765` | listen address |
 | `NETSCAN_DB_PASSWORD` | | `netscan` | used by `docker-compose.yml` (change in prod) |
 
 Secrets (DB URL, channel tokens) are read from the environment / per-channel config — **never hardcoded**.

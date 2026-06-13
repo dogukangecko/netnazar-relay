@@ -6,8 +6,11 @@ services:
       # CHANGE THIS in production (or override via an .env file).
       POSTGRES_PASSWORD: ${NETSCAN_DB_PASSWORD:-netscan}
       POSTGRES_DB: netscan
-    ports:
-      - "${NETSCAN_DB_PORT:-5432}:5432"
+    # Postgres is NOT published to the host — the relay reaches it over the
+    # internal Docker network (db:5432). Left unpublished to avoid port clashes.
+    # Need host access to the DB? Uncomment:
+    # ports:
+    #   - "${NETSCAN_DB_PORT:-5432}:5432"
     volumes:
       - netscan_pg:/var/lib/postgresql/data
     restart: unless-stopped
@@ -21,9 +24,10 @@ services:
     depends_on: [db]
     environment:
       NETSCAN_DATABASE_URL: postgres://netscan:${NETSCAN_DB_PASSWORD:-netscan}@db:5432/netscan
-      NETSCAN_BIND: 0.0.0.0:8080
+      NETSCAN_BIND: 0.0.0.0:8765
     ports:
-      - "${NETSCAN_RELAY_PORT:-8080}:8080"
+      # Uncommon 8765 instead of the very common 8080 (avoids clashes). Override with NETSCAN_RELAY_PORT.
+      - "${NETSCAN_RELAY_PORT:-8765}:8765"
     restart: unless-stopped
 
 volumes:
