@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://dogukangecko.github.io/netnazar-relay/netnazar-icon.png" width="120" alt="NetNazar" />
+
 # 🧿 NetNazar Relay
 
 **Self-hosted relay + protocol for [NetNazar](https://dogukangecko.github.io/netnazar/) — the privacy-first network scanner.**
