@@ -6,7 +6,7 @@
 
 No vendor cloud. You run the server. Your data never leaves infrastructure you control.
 
-[Website](https://dogukangecko.github.io/netnazar/) · [Privacy](https://dogukangecko.github.io/netnazar/privacy.html) · License: **AGPL-3.0**
+[Relay site](https://dogukangecko.github.io/netnazar-relay/) · [NetNazar app](https://dogukangecko.github.io/netnazar/) · [Privacy](https://dogukangecko.github.io/netnazar/privacy.html) · License: **AGPL-3.0**
 
 </div>
 
