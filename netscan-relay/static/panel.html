@@ -1,199 +1,125 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NetNazar 🧿</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --bg2: #161b22;
-    --bg3: #21262d;
-    --border: #30363d;
-    --fg: #e6edf3;
-    --muted: #8b949e;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --red: #f85149;
-    --amber: #d29922;
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --border: #30363d;
+    --fg: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --amber: #d29922;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    line-height: 1.5;
-  }
-  header {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.5; }
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
   header h1 { font-size: 1.2rem; margin: 0; font-weight: 600; }
   header .spacer { flex: 1; }
   main { max-width: 1000px; margin: 0 auto; padding: 16px; }
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
   h2 { font-size: 1rem; margin: 0 0 12px; color: var(--fg); }
   label { display: block; font-size: 0.85rem; color: var(--muted); margin: 8px 0 4px; }
-  input, select, button {
-    font: inherit;
-    color: var(--fg);
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 9px 12px;
-    width: 100%;
-  }
-  button {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    margin-top: 12px;
-  }
+  input, button { font: inherit; color: var(--fg); background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 9px 12px; width: 100%; }
+  button { background: var(--accent); color: #fff; border: none; cursor: pointer; font-weight: 600; margin-top: 12px; }
   button:hover { filter: brightness(1.1); }
-  button.ghost {
-    background: var(--bg3);
-    color: var(--fg);
-    border: 1px solid var(--border);
-    width: auto;
-    margin-top: 0;
-    padding: 6px 12px;
-    font-weight: 500;
-  }
+  button.ghost { background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
+    width: auto; margin-top: 0; padding: 6px 12px; font-weight: 500; }
+  select.lang { font: inherit; color: var(--fg); background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; width: auto; cursor: pointer; }
   .err { color: var(--red); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
   table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  th, td {
-    text-align: left;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 220px;
-  }
+  th, td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--border);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
   th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
   tr:last-child td { border-bottom: none; }
   .table-wrap { overflow-x: auto; }
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
   .pill.on { background: rgba(63,185,80,.15); color: var(--green); }
   .pill.off { background: rgba(139,148,158,.15); color: var(--muted); }
   .pill.open { background: rgba(248,81,73,.15); color: var(--red); }
   .pill.closed { background: rgba(63,185,80,.15); color: var(--green); }
   .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .metric {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px;
-    text-align: center;
-  }
+  .metric { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 12px; text-align: center; }
   .metric .val { font-size: 1.5rem; font-weight: 700; }
   .metric .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-  .net-item {
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    background: var(--bg3);
-  }
+  .net-item { padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px;
+    cursor: pointer; background: var(--bg3); }
   .net-item:hover { border-color: var(--accent); }
   .net-item.sel { border-color: var(--accent); background: rgba(88,166,255,.08); }
   .net-item .name { font-weight: 600; }
   .net-item .sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
   .muted { color: var(--muted); font-size: 0.88rem; }
   .hidden { display: none; }
-  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .ev-msg { white-space: normal; max-width: none; }
-  @media (max-width: 600px) {
-    .metrics-grid { grid-template-columns: 1fr 1fr 1fr; }
-    th, td { max-width: 140px; }
-  }
+  @media (max-width: 600px) { th, td { max-width: 140px; } }
 </style>
 </head>
 <body>
 <header>
   <h1>NetNazar 🧿</h1>
   <div class="spacer"></div>
-  <button id="logoutBtn" class="ghost hidden">Çıkış</button>
+  <select id="lang" class="lang" aria-label="Language"></select>
+  <button id="logoutBtn" class="ghost hidden" data-i18n="logout">Log out</button>
 </header>
 
 <main>
   <!-- Login -->
   <section id="loginView" class="card hidden">
-    <h2>Giriş</h2>
-    <label for="email">E-posta</label>
-    <input id="email" type="email" autocomplete="username" placeholder="ornek@mail.com">
-    <label for="password">Parola</label>
+    <h2 data-i18n="login_title">Sign in</h2>
+    <label for="email" data-i18n="email">Email</label>
+    <input id="email" type="email" autocomplete="username" placeholder="you@example.com">
+    <label for="password" data-i18n="password">Password</label>
     <input id="password" type="password" autocomplete="current-password">
-    <button id="loginBtn">Giriş yap</button>
+    <button id="loginBtn" data-i18n="login_btn">Sign in</button>
     <div id="loginErr" class="err"></div>
   </section>
 
   <!-- Dashboard -->
   <section id="dashView" class="hidden">
     <div class="card">
-      <h2>Ağlar</h2>
-      <div id="netList"><p class="muted">Yükleniyor…</p></div>
+      <h2 data-i18n="networks">Networks</h2>
+      <div id="netList"><p class="muted" data-i18n="loading">Loading…</p></div>
     </div>
 
     <div id="detail" class="hidden">
       <div class="card">
-        <h2>İnternet metrikleri (son örnek)</h2>
+        <h2 data-i18n="metrics_title">Internet metrics (latest)</h2>
         <div class="metrics-grid">
-          <div class="metric"><div id="mRtt" class="val">—</div><div class="lbl">RTT (ms)</div></div>
-          <div class="metric"><div id="mJitter" class="val">—</div><div class="lbl">Jitter (ms)</div></div>
-          <div class="metric"><div id="mLoss" class="val">—</div><div class="lbl">Kayıp (%)</div></div>
+          <div class="metric"><div id="mRtt" class="val">—</div><div class="lbl" data-i18n="rtt">RTT (ms)</div></div>
+          <div class="metric"><div id="mJitter" class="val">—</div><div class="lbl" data-i18n="jitter">Jitter (ms)</div></div>
+          <div class="metric"><div id="mLoss" class="val">—</div><div class="lbl" data-i18n="loss">Loss (%)</div></div>
         </div>
         <p id="mTs" class="muted" style="margin:10px 0 0;"></p>
       </div>
 
       <div class="card">
-        <h2>Cihazlar</h2>
+        <h2 data-i18n="devices">Devices</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ad</th><th>IP</th><th>MAC</th><th>Durum</th></tr></thead>
+            <thead><tr><th data-i18n="c_name">Name</th><th>IP</th><th>MAC</th><th data-i18n="c_status">Status</th></tr></thead>
             <tbody id="devBody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="card">
-        <h2>Kesintiler (internet)</h2>
+        <h2 data-i18n="outages_title">Outages (internet)</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Başlangıç</th><th>Bitiş</th><th>Süre</th><th>Durum</th></tr></thead>
+            <thead><tr><th data-i18n="c_start">Start</th><th data-i18n="c_end">End</th><th data-i18n="c_dur">Duration</th><th data-i18n="c_status">Status</th></tr></thead>
             <tbody id="outBody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="card">
-        <h2>Son olaylar</h2>
+        <h2 data-i18n="events_title">Recent events</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Zaman</th><th>Tür</th><th>Mesaj</th></tr></thead>
+            <thead><tr><th data-i18n="c_time">Time</th><th data-i18n="c_type">Type</th><th data-i18n="c_msg">Message</th></tr></thead>
             <tbody id="evBody"></tbody>
           </table>
         </div>
@@ -206,57 +132,83 @@
 (function () {
   "use strict";
 
+  var LANGS = [["en","English"],["tr","Türkçe"],["zh","中文"],["hi","हिन्दी"],["es","Español"],["fr","Français"],["ar","العربية"],["pt","Português"],["ru","Русский"],["ja","日本語"],["de","Deutsch"]];
+  var T = {
+    en:{logout:"Log out",login_title:"Sign in",email:"Email",password:"Password",login_btn:"Sign in",networks:"Networks",loading:"Loading…",metrics_title:"Internet metrics (latest)",rtt:"RTT (ms)",jitter:"Jitter (ms)",loss:"Loss (%)",devices:"Devices",c_name:"Name",c_status:"Status",outages_title:"Outages (internet)",c_start:"Start",c_end:"End",c_dur:"Duration",events_title:"Recent events",c_time:"Time",c_type:"Type",c_msg:"Message",no_networks:"No networks yet.",online:"online",last:"last:",session_expired:"Session expired, sign in again.",req_failed:"Request failed ({0})",creds_required:"Email and password required.",bad_creds:"Wrong email or password.",login_failed:"Sign-in failed ({0})",no_metrics:"No metrics yet.",latest_sample:"Latest sample: {0}",no_devices:"No devices.",st_online:"online",st_offline:"offline",no_outages:"No outages.",st_closed:"closed",st_open:"open",ongoing:"ongoing",no_events:"No events."},
+    tr:{logout:"Çıkış",login_title:"Giriş",email:"E-posta",password:"Parola",login_btn:"Giriş yap",networks:"Ağlar",loading:"Yükleniyor…",metrics_title:"İnternet metrikleri (son örnek)",rtt:"RTT (ms)",jitter:"Jitter (ms)",loss:"Kayıp (%)",devices:"Cihazlar",c_name:"Ad",c_status:"Durum",outages_title:"Kesintiler (internet)",c_start:"Başlangıç",c_end:"Bitiş",c_dur:"Süre",events_title:"Son olaylar",c_time:"Zaman",c_type:"Tür",c_msg:"Mesaj",no_networks:"Henüz ağ yok.",online:"çevrimiçi",last:"son:",session_expired:"Oturum süresi doldu, tekrar giriş yapın.",req_failed:"İstek başarısız ({0})",creds_required:"E-posta ve parola gerekli.",bad_creds:"E-posta veya parola hatalı.",login_failed:"Giriş başarısız ({0})",no_metrics:"Henüz metrik yok.",latest_sample:"Son örnek: {0}",no_devices:"Cihaz yok.",st_online:"çevrimiçi",st_offline:"çevrimdışı",no_outages:"Kesinti yok.",st_closed:"kapandı",st_open:"açık",ongoing:"sürüyor",no_events:"Olay yok."},
+    zh:{logout:"退出",login_title:"登录",email:"邮箱",password:"密码",login_btn:"登录",networks:"网络",loading:"加载中…",metrics_title:"互联网指标（最新）",rtt:"RTT（毫秒）",jitter:"抖动（毫秒）",loss:"丢包（%）",devices:"设备",c_name:"名称",c_status:"状态",outages_title:"中断（互联网）",c_start:"开始",c_end:"结束",c_dur:"时长",events_title:"最近事件",c_time:"时间",c_type:"类型",c_msg:"消息",no_networks:"暂无网络。",online:"在线",last:"最近:",session_expired:"会话已过期，请重新登录。",req_failed:"请求失败（{0}）",creds_required:"需要邮箱和密码。",bad_creds:"邮箱或密码错误。",login_failed:"登录失败（{0}）",no_metrics:"暂无指标。",latest_sample:"最新样本: {0}",no_devices:"无设备。",st_online:"在线",st_offline:"离线",no_outages:"无中断。",st_closed:"已结束",st_open:"进行中",ongoing:"进行中",no_events:"无事件。"},
+    hi:{logout:"लॉग आउट",login_title:"साइन इन",email:"ईमेल",password:"पासवर्ड",login_btn:"साइन इन",networks:"नेटवर्क",loading:"लोड हो रहा…",metrics_title:"इंटरनेट मेट्रिक्स (नवीनतम)",rtt:"RTT (ms)",jitter:"जिटर (ms)",loss:"हानि (%)",devices:"डिवाइस",c_name:"नाम",c_status:"स्थिति",outages_title:"आउटेज (इंटरनेट)",c_start:"शुरू",c_end:"अंत",c_dur:"अवधि",events_title:"हाल की घटनाएँ",c_time:"समय",c_type:"प्रकार",c_msg:"संदेश",no_networks:"अभी कोई नेटवर्क नहीं।",online:"ऑनलाइन",last:"अंतिम:",session_expired:"सत्र समाप्त, फिर साइन इन करें।",req_failed:"अनुरोध विफल ({0})",creds_required:"ईमेल और पासवर्ड आवश्यक।",bad_creds:"गलत ईमेल या पासवर्ड।",login_failed:"साइन इन विफल ({0})",no_metrics:"अभी कोई मेट्रिक नहीं।",latest_sample:"नवीनतम नमूना: {0}",no_devices:"कोई डिवाइस नहीं।",st_online:"ऑनलाइन",st_offline:"ऑफ़लाइन",no_outages:"कोई आउटेज नहीं।",st_closed:"बंद",st_open:"खुला",ongoing:"जारी",no_events:"कोई घटना नहीं।"},
+    es:{logout:"Salir",login_title:"Iniciar sesión",email:"Correo",password:"Contraseña",login_btn:"Iniciar sesión",networks:"Redes",loading:"Cargando…",metrics_title:"Métricas de internet (última)",rtt:"RTT (ms)",jitter:"Jitter (ms)",loss:"Pérdida (%)",devices:"Dispositivos",c_name:"Nombre",c_status:"Estado",outages_title:"Cortes (internet)",c_start:"Inicio",c_end:"Fin",c_dur:"Duración",events_title:"Eventos recientes",c_time:"Hora",c_type:"Tipo",c_msg:"Mensaje",no_networks:"Aún no hay redes.",online:"en línea",last:"último:",session_expired:"Sesión expirada, inicia sesión de nuevo.",req_failed:"Solicitud fallida ({0})",creds_required:"Correo y contraseña requeridos.",bad_creds:"Correo o contraseña incorrectos.",login_failed:"Inicio de sesión fallido ({0})",no_metrics:"Aún no hay métricas.",latest_sample:"Última muestra: {0}",no_devices:"Sin dispositivos.",st_online:"en línea",st_offline:"sin conexión",no_outages:"Sin cortes.",st_closed:"cerrado",st_open:"abierto",ongoing:"en curso",no_events:"Sin eventos."},
+    fr:{logout:"Déconnexion",login_title:"Connexion",email:"E-mail",password:"Mot de passe",login_btn:"Se connecter",networks:"Réseaux",loading:"Chargement…",metrics_title:"Métriques internet (dernière)",rtt:"RTT (ms)",jitter:"Gigue (ms)",loss:"Perte (%)",devices:"Appareils",c_name:"Nom",c_status:"État",outages_title:"Coupures (internet)",c_start:"Début",c_end:"Fin",c_dur:"Durée",events_title:"Événements récents",c_time:"Heure",c_type:"Type",c_msg:"Message",no_networks:"Aucun réseau pour l'instant.",online:"en ligne",last:"dernier :",session_expired:"Session expirée, reconnectez-vous.",req_failed:"Échec de la requête ({0})",creds_required:"E-mail et mot de passe requis.",bad_creds:"E-mail ou mot de passe incorrect.",login_failed:"Échec de connexion ({0})",no_metrics:"Aucune métrique.",latest_sample:"Dernier échantillon : {0}",no_devices:"Aucun appareil.",st_online:"en ligne",st_offline:"hors ligne",no_outages:"Aucune coupure.",st_closed:"fermée",st_open:"ouverte",ongoing:"en cours",no_events:"Aucun événement."},
+    ar:{logout:"خروج",login_title:"تسجيل الدخول",email:"البريد",password:"كلمة المرور",login_btn:"دخول",networks:"الشبكات",loading:"جارٍ التحميل…",metrics_title:"مقاييس الإنترنت (الأحدث)",rtt:"RTT (ms)",jitter:"الارتجاف (ms)",loss:"الفقد (%)",devices:"الأجهزة",c_name:"الاسم",c_status:"الحالة",outages_title:"الانقطاعات (إنترنت)",c_start:"البداية",c_end:"النهاية",c_dur:"المدة",events_title:"أحدث الأحداث",c_time:"الوقت",c_type:"النوع",c_msg:"الرسالة",no_networks:"لا توجد شبكات بعد.",online:"متصل",last:"الأخير:",session_expired:"انتهت الجلسة، سجّل الدخول مجددًا.",req_failed:"فشل الطلب ({0})",creds_required:"البريد وكلمة المرور مطلوبان.",bad_creds:"بريد أو كلمة مرور خاطئة.",login_failed:"فشل تسجيل الدخول ({0})",no_metrics:"لا مقاييس بعد.",latest_sample:"أحدث عينة: {0}",no_devices:"لا أجهزة.",st_online:"متصل",st_offline:"غير متصل",no_outages:"لا انقطاعات.",st_closed:"مغلق",st_open:"مفتوح",ongoing:"جارٍ",no_events:"لا أحداث."},
+    pt:{logout:"Sair",login_title:"Entrar",email:"E-mail",password:"Senha",login_btn:"Entrar",networks:"Redes",loading:"Carregando…",metrics_title:"Métricas de internet (última)",rtt:"RTT (ms)",jitter:"Jitter (ms)",loss:"Perda (%)",devices:"Dispositivos",c_name:"Nome",c_status:"Estado",outages_title:"Quedas (internet)",c_start:"Início",c_end:"Fim",c_dur:"Duração",events_title:"Eventos recentes",c_time:"Hora",c_type:"Tipo",c_msg:"Mensagem",no_networks:"Ainda sem redes.",online:"on-line",last:"último:",session_expired:"Sessão expirada, entre novamente.",req_failed:"Falha na solicitação ({0})",creds_required:"E-mail e senha obrigatórios.",bad_creds:"E-mail ou senha incorretos.",login_failed:"Falha ao entrar ({0})",no_metrics:"Ainda sem métricas.",latest_sample:"Última amostra: {0}",no_devices:"Sem dispositivos.",st_online:"on-line",st_offline:"off-line",no_outages:"Sem quedas.",st_closed:"fechada",st_open:"aberta",ongoing:"em curso",no_events:"Sem eventos."},
+    ru:{logout:"Выйти",login_title:"Вход",email:"Эл. почта",password:"Пароль",login_btn:"Войти",networks:"Сети",loading:"Загрузка…",metrics_title:"Метрики интернета (последние)",rtt:"RTT (мс)",jitter:"Джиттер (мс)",loss:"Потери (%)",devices:"Устройства",c_name:"Имя",c_status:"Статус",outages_title:"Сбои (интернет)",c_start:"Начало",c_end:"Конец",c_dur:"Длительность",events_title:"Последние события",c_time:"Время",c_type:"Тип",c_msg:"Сообщение",no_networks:"Пока нет сетей.",online:"в сети",last:"посл.:",session_expired:"Сессия истекла, войдите снова.",req_failed:"Сбой запроса ({0})",creds_required:"Нужны эл. почта и пароль.",bad_creds:"Неверная почта или пароль.",login_failed:"Сбой входа ({0})",no_metrics:"Пока нет метрик.",latest_sample:"Последний образец: {0}",no_devices:"Нет устройств.",st_online:"в сети",st_offline:"не в сети",no_outages:"Нет сбоев.",st_closed:"закрыт",st_open:"открыт",ongoing:"идёт",no_events:"Нет событий."},
+    ja:{logout:"ログアウト",login_title:"ログイン",email:"メール",password:"パスワード",login_btn:"ログイン",networks:"ネットワーク",loading:"読み込み中…",metrics_title:"インターネット指標（最新）",rtt:"RTT (ms)",jitter:"ジッター (ms)",loss:"ロス (%)",devices:"デバイス",c_name:"名前",c_status:"状態",outages_title:"障害（インターネット）",c_start:"開始",c_end:"終了",c_dur:"時間",events_title:"最近のイベント",c_time:"時刻",c_type:"種類",c_msg:"メッセージ",no_networks:"ネットワークはまだありません。",online:"オンライン",last:"最終:",session_expired:"セッション期限切れ。再度ログインしてください。",req_failed:"リクエスト失敗 ({0})",creds_required:"メールとパスワードが必要です。",bad_creds:"メールまたはパスワードが違います。",login_failed:"ログイン失敗 ({0})",no_metrics:"指標はまだありません。",latest_sample:"最新サンプル: {0}",no_devices:"デバイスなし。",st_online:"オンライン",st_offline:"オフライン",no_outages:"障害なし。",st_closed:"終了",st_open:"発生中",ongoing:"継続中",no_events:"イベントなし。"},
+    de:{logout:"Abmelden",login_title:"Anmelden",email:"E-Mail",password:"Passwort",login_btn:"Anmelden",networks:"Netzwerke",loading:"Laden…",metrics_title:"Internet-Metriken (aktuell)",rtt:"RTT (ms)",jitter:"Jitter (ms)",loss:"Verlust (%)",devices:"Geräte",c_name:"Name",c_status:"Status",outages_title:"Ausfälle (Internet)",c_start:"Beginn",c_end:"Ende",c_dur:"Dauer",events_title:"Letzte Ereignisse",c_time:"Zeit",c_type:"Typ",c_msg:"Nachricht",no_networks:"Noch keine Netzwerke.",online:"online",last:"zuletzt:",session_expired:"Sitzung abgelaufen, bitte neu anmelden.",req_failed:"Anfrage fehlgeschlagen ({0})",creds_required:"E-Mail und Passwort erforderlich.",bad_creds:"Falsche E-Mail oder falsches Passwort.",login_failed:"Anmeldung fehlgeschlagen ({0})",no_metrics:"Noch keine Metriken.",latest_sample:"Letzte Probe: {0}",no_devices:"Keine Geräte.",st_online:"online",st_offline:"offline",no_outages:"Keine Ausfälle.",st_closed:"geschlossen",st_open:"offen",ongoing:"läuft",no_events:"Keine Ereignisse."}
+  };
+
+  var LANG_KEY = "netnazar_lang";
+  var lang = localStorage.getItem(LANG_KEY);
+  if (!lang) { var b = (navigator.language || "en").slice(0,2).toLowerCase(); lang = T[b] ? b : "en"; }
+
+  function t(key, a0) {
+    var d = T[lang] || T.en;
+    var s = (d[key] != null) ? d[key] : (T.en[key] != null ? T.en[key] : key);
+    if (a0 !== undefined) { s = s.replace("{0}", a0); }
+    return s;
+  }
+
   var TOKEN_KEY = "netnazar_token";
   var token = localStorage.getItem(TOKEN_KEY) || null;
   var selectedNet = null;
 
   var $ = function (id) { return document.getElementById(id); };
-
   function show(el) { el.classList.remove("hidden"); }
   function hide(el) { el.classList.add("hidden"); }
 
-  // Token yalnız Authorization header'ında; URL'ye asla konmaz.
+  function applyLang() {
+    var d = T[lang] || T.en;
+    var nodes = document.querySelectorAll("[data-i18n]");
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute("data-i18n");
+      if (d[k] != null) { nodes[i].textContent = d[k]; }
+    }
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === "ar") ? "rtl" : "ltr";
+    var sel = $("lang"); if (sel) { sel.value = lang; }
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  }
+
   function api(path) {
-    return fetch(path, {
-      headers: { "Authorization": "Bearer " + token }
-    }).then(function (res) {
-      if (res.status === 401) {
-        doLogout();
-        throw new Error("Oturum süresi doldu, tekrar giriş yapın.");
-      }
-      if (!res.ok) { throw new Error("İstek başarısız (" + res.status + ")"); }
+    return fetch(path, { headers: { "Authorization": "Bearer " + token } }).then(function (res) {
+      if (res.status === 401) { doLogout(); throw new Error(t("session_expired")); }
+      if (!res.ok) { throw new Error(t("req_failed", res.status)); }
       return res.json();
     });
   }
 
   function fmtTs(sec) {
     if (sec === null || sec === undefined) { return "—"; }
-    var d = new Date(sec * 1000);
-    return d.toLocaleString();
+    return new Date(sec * 1000).toLocaleString();
   }
-
   function fmtDur(start, end) {
-    if (end === null || end === undefined) { return "sürüyor"; }
+    if (end === null || end === undefined) { return t("ongoing"); }
     var s = Math.max(0, end - start);
     var m = Math.floor(s / 60), r = s % 60;
     if (m === 0) { return r + "s"; }
     var h = Math.floor(m / 60), rm = m % 60;
-    if (h === 0) { return m + "d " + r + "s"; }
-    return h + "sa " + rm + "d";
+    if (h === 0) { return m + "m " + r + "s"; }
+    return h + "h " + rm + "m";
   }
-
   function fmtNum(n) {
     if (n === null || n === undefined) { return "—"; }
     return (Math.round(n * 10) / 10).toString();
   }
-
-  // Güvenli hücre: değer textContent ile yazılır (XSS yok).
   function cell(text) {
     var td = document.createElement("td");
     td.textContent = (text === null || text === undefined || text === "") ? "—" : String(text);
     return td;
   }
-
   function pillCell(text, cls) {
     var td = document.createElement("td");
     var span = document.createElement("span");
@@ -265,246 +217,173 @@
     td.appendChild(span);
     return td;
   }
-
   function clear(el) { while (el.firstChild) { el.removeChild(el.firstChild); } }
 
-  // ---- Views ----
-  function showLogin() {
-    hide($("dashView"));
-    hide($("logoutBtn"));
-    show($("loginView"));
-  }
+  function showLogin() { hide($("dashView")); hide($("logoutBtn")); show($("loginView")); }
+  function showDash() { hide($("loginView")); show($("dashView")); show($("logoutBtn")); loadNetworks(); }
+  function doLogout() { token = null; selectedNet = null; localStorage.removeItem(TOKEN_KEY); showLogin(); }
 
-  function showDash() {
-    hide($("loginView"));
-    show($("dashView"));
-    show($("logoutBtn"));
-    loadNetworks();
-  }
-
-  function doLogout() {
-    token = null;
-    selectedNet = null;
-    localStorage.removeItem(TOKEN_KEY);
-    showLogin();
-  }
-
-  // ---- Login ----
   function doLogin() {
     var email = $("email").value.trim();
     var password = $("password").value;
     $("loginErr").textContent = "";
-    if (!email || !password) {
-      $("loginErr").textContent = "E-posta ve parola gerekli.";
-      return;
-    }
+    if (!email || !password) { $("loginErr").textContent = t("creds_required"); return; }
     fetch("/v1/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, password: password })
     }).then(function (res) {
-      if (res.status === 401) { throw new Error("E-posta veya parola hatalı."); }
-      if (!res.ok) { throw new Error("Giriş başarısız (" + res.status + ")"); }
+      if (res.status === 401) { throw new Error(t("bad_creds")); }
+      if (!res.ok) { throw new Error(t("login_failed", res.status)); }
       return res.json();
     }).then(function (data) {
       token = data.token;
       localStorage.setItem(TOKEN_KEY, token);
       $("password").value = "";
       showDash();
-    }).catch(function (e) {
-      $("loginErr").textContent = e.message;
-    });
+    }).catch(function (e) { $("loginErr").textContent = e.message; });
   }
 
-  // ---- Networks ----
   function loadNetworks() {
     var list = $("netList");
     clear(list);
-    var p = document.createElement("p");
-    p.className = "muted";
-    p.textContent = "Yükleniyor…";
+    var p = document.createElement("p"); p.className = "muted"; p.textContent = t("loading");
     list.appendChild(p);
-
     api("/v1/networks").then(function (nets) {
       clear(list);
       if (!nets.length) {
-        var em = document.createElement("p");
-        em.className = "muted";
-        em.textContent = "Henüz ağ yok.";
-        list.appendChild(em);
-        return;
+        var em = document.createElement("p"); em.className = "muted"; em.textContent = t("no_networks");
+        list.appendChild(em); return;
       }
       nets.forEach(function (n) {
         var item = document.createElement("div");
         item.className = "net-item";
         if (selectedNet === n.id) { item.classList.add("sel"); }
-
-        var name = document.createElement("div");
-        name.className = "name";
+        var name = document.createElement("div"); name.className = "name";
         name.textContent = n.name || n.subnet || n.id;
-
-        var sub = document.createElement("div");
-        sub.className = "sub";
+        var sub = document.createElement("div"); sub.className = "sub";
         sub.textContent = (n.subnet || "—") + " · " +
-          (n.online_count || 0) + "/" + (n.device_count || 0) + " çevrimiçi · " +
-          "son: " + fmtTs(n.last_seen);
-
-        item.appendChild(name);
-        item.appendChild(sub);
+          (n.online_count || 0) + "/" + (n.device_count || 0) + " " + t("online") + " · " +
+          t("last") + " " + fmtTs(n.last_seen);
+        item.appendChild(name); item.appendChild(sub);
         item.addEventListener("click", function () { selectNetwork(n.id); });
         list.appendChild(item);
       });
     }).catch(function (e) {
       clear(list);
-      var em = document.createElement("p");
-      em.className = "err";
-      em.textContent = e.message;
+      var em = document.createElement("p"); em.className = "err"; em.textContent = e.message;
       list.appendChild(em);
     });
   }
 
   function selectNetwork(id) {
     selectedNet = id;
-    // Seçili vurgusunu güncelle.
-    var items = document.querySelectorAll(".net-item");
-    items.forEach(function (el) { el.classList.remove("sel"); });
-    // Yeniden işaretle: tıklanan öğeyi bul.
     loadNetworks();
     show($("detail"));
-    loadMetrics(id);
-    loadDevices(id);
-    loadOutages(id);
-    loadEvents();
+    loadMetrics(id); loadDevices(id); loadOutages(id); loadEvents();
   }
 
-  // ---- Metrics ----
   function loadMetrics(id) {
-    $("mRtt").textContent = "…";
-    $("mJitter").textContent = "…";
-    $("mLoss").textContent = "…";
-    $("mTs").textContent = "";
-    api("/v1/networks/" + encodeURIComponent(id) + "/metrics?target=internet&limit=1")
-      .then(function (samples) {
-        if (!samples.length) {
-          $("mRtt").textContent = "—";
-          $("mJitter").textContent = "—";
-          $("mLoss").textContent = "—";
-          $("mTs").textContent = "Henüz metrik yok.";
-          return;
-        }
-        var s = samples[samples.length - 1];
-        $("mRtt").textContent = fmtNum(s.rtt_ms);
-        $("mJitter").textContent = fmtNum(s.jitter_ms);
-        $("mLoss").textContent = fmtNum(s.loss_pct);
-        $("mTs").textContent = "Son örnek: " + fmtTs(s.ts);
-      }).catch(function (e) {
-        $("mTs").textContent = e.message;
-      });
+    $("mRtt").textContent = "…"; $("mJitter").textContent = "…"; $("mLoss").textContent = "…"; $("mTs").textContent = "";
+    api("/v1/networks/" + encodeURIComponent(id) + "/metrics?target=internet&limit=1").then(function (samples) {
+      if (!samples.length) {
+        $("mRtt").textContent = "—"; $("mJitter").textContent = "—"; $("mLoss").textContent = "—";
+        $("mTs").textContent = t("no_metrics"); return;
+      }
+      var s = samples[samples.length - 1];
+      $("mRtt").textContent = fmtNum(s.rtt_ms);
+      $("mJitter").textContent = fmtNum(s.jitter_ms);
+      $("mLoss").textContent = fmtNum(s.loss_pct);
+      $("mTs").textContent = t("latest_sample", fmtTs(s.ts));
+    }).catch(function (e) { $("mTs").textContent = e.message; });
   }
 
-  // ---- Devices ----
   function loadDevices(id) {
-    var body = $("devBody");
-    clear(body);
+    var body = $("devBody"); clear(body);
     api("/v1/networks/" + encodeURIComponent(id) + "/devices").then(function (devs) {
       clear(body);
       if (!devs.length) {
-        var tr = document.createElement("tr");
-        var td = cell("Cihaz yok.");
-        td.colSpan = 4;
-        tr.appendChild(td);
-        body.appendChild(tr);
-        return;
+        var tr = document.createElement("tr"); var td = cell(t("no_devices")); td.colSpan = 4;
+        tr.appendChild(td); body.appendChild(tr); return;
       }
       devs.forEach(function (d) {
         var tr = document.createElement("tr");
         tr.appendChild(cell(d.hostname || d.vendor));
         tr.appendChild(cell(d.ip));
         tr.appendChild(cell(d.mac));
-        tr.appendChild(d.is_online ? pillCell("çevrimiçi", "on") : pillCell("çevrimdışı", "off"));
+        tr.appendChild(d.is_online ? pillCell(t("st_online"), "on") : pillCell(t("st_offline"), "off"));
         body.appendChild(tr);
       });
     }).catch(function (e) {
       clear(body);
-      var tr = document.createElement("tr");
-      var td = cell(e.message);
-      td.colSpan = 4;
-      tr.appendChild(td);
-      body.appendChild(tr);
+      var tr = document.createElement("tr"); var td = cell(e.message); td.colSpan = 4;
+      tr.appendChild(td); body.appendChild(tr);
     });
   }
 
-  // ---- Outages ----
   function loadOutages(id) {
-    var body = $("outBody");
-    clear(body);
-    api("/v1/networks/" + encodeURIComponent(id) + "/outages?target=internet")
-      .then(function (outs) {
-        clear(body);
-        if (!outs.length) {
-          var tr = document.createElement("tr");
-          var td = cell("Kesinti yok.");
-          td.colSpan = 4;
-          tr.appendChild(td);
-          body.appendChild(tr);
-          return;
-        }
-        outs.forEach(function (o) {
-          var tr = document.createElement("tr");
-          tr.appendChild(cell(fmtTs(o.started_ts)));
-          tr.appendChild(cell(o.ended_ts ? fmtTs(o.ended_ts) : "—"));
-          tr.appendChild(cell(fmtDur(o.started_ts, o.ended_ts)));
-          tr.appendChild(o.ended_ts ? pillCell("kapandı", "closed") : pillCell("açık", "open"));
-          body.appendChild(tr);
-        });
-      }).catch(function (e) {
-        clear(body);
+    var body = $("outBody"); clear(body);
+    api("/v1/networks/" + encodeURIComponent(id) + "/outages?target=internet").then(function (outs) {
+      clear(body);
+      if (!outs.length) {
+        var tr = document.createElement("tr"); var td = cell(t("no_outages")); td.colSpan = 4;
+        tr.appendChild(td); body.appendChild(tr); return;
+      }
+      outs.forEach(function (o) {
         var tr = document.createElement("tr");
-        var td = cell(e.message);
-        td.colSpan = 4;
-        tr.appendChild(td);
+        tr.appendChild(cell(fmtTs(o.started_ts)));
+        tr.appendChild(cell(o.ended_ts ? fmtTs(o.ended_ts) : "—"));
+        tr.appendChild(cell(fmtDur(o.started_ts, o.ended_ts)));
+        tr.appendChild(o.ended_ts ? pillCell(t("st_closed"), "closed") : pillCell(t("st_open"), "open"));
         body.appendChild(tr);
       });
+    }).catch(function (e) {
+      clear(body);
+      var tr = document.createElement("tr"); var td = cell(e.message); td.colSpan = 4;
+      tr.appendChild(td); body.appendChild(tr);
+    });
   }
 
-  // ---- Events ----
   function loadEvents() {
-    var body = $("evBody");
-    clear(body);
+    var body = $("evBody"); clear(body);
     api("/v1/events").then(function (evs) {
       clear(body);
       if (!evs.length) {
-        var tr = document.createElement("tr");
-        var td = cell("Olay yok.");
-        td.colSpan = 3;
-        tr.appendChild(td);
-        body.appendChild(tr);
-        return;
+        var tr = document.createElement("tr"); var td = cell(t("no_events")); td.colSpan = 3;
+        tr.appendChild(td); body.appendChild(tr); return;
       }
       evs.forEach(function (ev) {
         var tr = document.createElement("tr");
         tr.appendChild(cell(fmtTs(ev.ts)));
         tr.appendChild(cell(ev.kind));
-        var msg = cell(ev.message);
-        msg.className = "ev-msg";
+        var msg = cell(ev.message); msg.className = "ev-msg";
         tr.appendChild(msg);
         body.appendChild(tr);
       });
     }).catch(function (e) {
       clear(body);
-      var tr = document.createElement("tr");
-      var td = cell(e.message);
-      td.colSpan = 3;
-      tr.appendChild(td);
-      body.appendChild(tr);
+      var tr = document.createElement("tr"); var td = cell(e.message); td.colSpan = 3;
+      tr.appendChild(td); body.appendChild(tr);
     });
   }
 
   // ---- Wire up ----
-  $("loginBtn").addEventListener("click", doLogin);
-  $("password").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") { doLogin(); }
+  var sel = $("lang");
+  for (var i = 0; i < LANGS.length; i++) {
+    var o = document.createElement("option");
+    o.value = LANGS[i][0]; o.textContent = LANGS[i][1];
+    sel.appendChild(o);
+  }
+  applyLang();
+  sel.addEventListener("change", function () {
+    lang = sel.value;
+    applyLang();
+    // Görünür verileri yeni dile göre yeniden çiz.
+    if (token) { loadNetworks(); if (selectedNet) { loadMetrics(selectedNet); loadDevices(selectedNet); loadOutages(selectedNet); loadEvents(); } }
   });
+
+  $("loginBtn").addEventListener("click", doLogin);
+  $("password").addEventListener("keydown", function (e) { if (e.key === "Enter") { doLogin(); } });
   $("logoutBtn").addEventListener("click", doLogout);
 
   if (token) { showDash(); } else { showLogin(); }
