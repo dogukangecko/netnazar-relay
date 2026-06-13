@@ -42,7 +42,17 @@
   .card p{margin:0;color:var(--muted);font-size:.92rem}
   pre{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;font-size:.86rem;line-height:1.6;color:#cdd6e4}
   pre .c{color:var(--faint)}pre .k{color:var(--eye)}
-  .ascii{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:18px;overflow-x:auto;font-size:.78rem;line-height:1.45;color:var(--muted);white-space:pre}
+  .flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:18px 0}
+  .fnode{flex:1 1 190px;background:var(--surface2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:3px}
+  .fnode.n-teal{border-top-color:var(--green)}.fnode.n-blue{border-top-color:var(--eye)}.fnode.n-amber{border-top-color:var(--amber)}
+  .fnode .fzone{font-size:.74rem;letter-spacing:.04em;color:var(--faint)}
+  .fnode b{font-size:.97rem;font-weight:600}
+  .fnode .fsub{color:var(--muted);font-size:.84rem}
+  .fedge{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:88px;gap:1px}
+  .fedge .fe{color:var(--text);font-weight:600;font-size:.84rem}
+  .fedge .far{font-size:1.3rem;color:var(--muted);line-height:1}
+  .fedge .fes{font-size:.72rem;color:var(--faint);text-align:center}
+  @media(max-width:640px){.fedge .far{transform:rotate(90deg)}}
   table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem}
   th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
   th{color:var(--faint);font-weight:600}td code{color:var(--eye)}
@@ -115,13 +125,33 @@ netscan-relay add-channel --kind ntfy ...     <span class="c"># wire an away-not
 
   <section>
     <h2><span class="ic">▍</span><span data-i18n="how.h">How it works</span></h2>
-    <div class="ascii"> your network                      your server                your phone
-┌──────────────┐  push (HTTPS)  ┌────────────────┐   read  ┌──────────────┐
-│ NetNazar     │ ─────────────▶ │  netscan-relay │ ──────▶ │ NetNazar app │
-│ agent (scan) │  inventory,    │  + PostgreSQL  │  login, │ (remote view)│
-│              │  metrics       │                │  events │              │
-└──────────────┘                └────────────────┘         └──────────────┘
-      outbound-only          REST + WebSocket (axum)     opaque session token</div>
+    <div class="flow">
+      <div class="fnode n-teal">
+        <span class="fzone" data-i18n="how.z1">your network</span>
+        <b>NetNazar agent</b>
+        <span class="fsub" data-i18n="how.s1">scan · inventory + metrics</span>
+      </div>
+      <div class="fedge">
+        <span class="fe" data-i18n="how.e1">push</span>
+        <span class="far">→</span>
+        <span class="fes" data-i18n="how.e1s">HTTPS · outbound-only</span>
+      </div>
+      <div class="fnode n-blue">
+        <span class="fzone" data-i18n="how.z2">your server</span>
+        <b>netscan-relay + PostgreSQL</b>
+        <span class="fsub" data-i18n="how.s2">REST + WebSocket (axum)</span>
+      </div>
+      <div class="fedge">
+        <span class="fe" data-i18n="how.e2">read</span>
+        <span class="far">→</span>
+        <span class="fes" data-i18n="how.e2s">login · events</span>
+      </div>
+      <div class="fnode n-amber">
+        <span class="fzone" data-i18n="how.z3">your phone</span>
+        <b>NetNazar app</b>
+        <span class="fsub" data-i18n="how.s3">remote view · session token</span>
+      </div>
+    </div>
     <p class="lead" data-i18n="how.p">The agent pushes inventory and metrics (authenticated with an agent key). The app logs in for an opaque, hashed, expiring session token and reads networks, devices, metrics, outages, events and the audit log. A reverse tunnel lets the app reach a device's web UI through the relay. Multi-tenant from day one.</p>
 
     <h2><span class="ic">▍</span><span data-i18n="cfg.h">Configuration</span></h2>
@@ -170,6 +200,7 @@ const I18N={
   "qs.p":"Clone, set a database password, and bring it up. The relay applies its schema migrations automatically on startup and listens on <code>:8080</code>.",
   "qs.after":"Point your agent's <code>NETSCAN_RELAY_URL</code> at it, then log in from the NetNazar app's remote view. The same binary doubles as an admin CLI:",
   "how.h":"How it works",
+  "how.z1":"your network","how.s1":"scan · inventory + metrics","how.e1":"push","how.e1s":"HTTPS · outbound-only","how.z2":"your server","how.s2":"REST + WebSocket (axum)","how.e2":"read","how.e2s":"login · events","how.z3":"your phone","how.s3":"remote view · session token",
   "how.p":"The agent pushes inventory and metrics (authenticated with an agent key). The app logs in for an opaque, hashed, expiring session token and reads networks, devices, metrics, outages, events and the audit log. A reverse tunnel lets the app reach a device's web UI through the relay. Multi-tenant from day one.",
   "cfg.h":"Configuration",
   "cfg.t1":"Variable","cfg.t2":"Required","cfg.t3":"Purpose",
@@ -203,6 +234,7 @@ const I18N={
   "qs.p":"Klonla, bir veritabanı parolası belirle ve ayağa kaldır. Relay başlangıçta şema göçlerini otomatik uygular ve <code>:8080</code> dinler.",
   "qs.after":"Agent'ının <code>NETSCAN_RELAY_URL</code>'sini buna yönlendir, sonra NetNazar uygulamasının uzak görünümünden giriş yap. Aynı ikili yönetici CLI'si olarak da çalışır:",
   "how.h":"Nasıl çalışır",
+  "how.z1":"ağın","how.s1":"tarama · envanter + metrik","how.e1":"push","how.e1s":"HTTPS · yalnızca dışa","how.z2":"sunucun","how.s2":"REST + WebSocket (axum)","how.e2":"okuma","how.e2s":"giriş · olaylar","how.z3":"telefonun","how.s3":"uzak görünüm · oturum jetonu",
   "how.p":"Agent envanter ve metrikleri push eder (agent anahtarıyla doğrulanır). Uygulama opak, hash'lenmiş, süreli bir oturum jetonu için giriş yapar ve ağları, cihazları, metrikleri, kesintileri, olayları ve denetim günlüğünü okur. Ters tünel, uygulamanın bir cihazın web arayüzüne relay üzerinden erişmesini sağlar. İlk günden çok kiracılı.",
   "cfg.h":"Yapılandırma",
   "cfg.t1":"Değişken","cfg.t2":"Zorunlu","cfg.t3":"Amaç",
@@ -236,6 +268,7 @@ const I18N={
   "qs.p":"克隆、设置数据库密码并启动。中继在启动时自动应用其架构迁移，并监听 <code>:8080</code>。",
   "qs.after":"将你代理的 <code>NETSCAN_RELAY_URL</code> 指向它，然后从 NetNazar 应用的远程视图登录。同一个二进制文件也可作为管理 CLI：",
   "how.h":"工作原理",
+  "how.z1":"你的网络","how.s1":"扫描 · 清单 + 指标","how.e1":"推送","how.e1s":"HTTPS · 仅出站","how.z2":"你的服务器","how.s2":"REST + WebSocket (axum)","how.e2":"读取","how.e2s":"登录 · 事件","how.z3":"你的手机","how.s3":"远程视图 · 会话令牌",
   "how.p":"代理推送清单和指标（用代理密钥认证）。应用登录获取一个不透明、经哈希、会过期的会话令牌，读取网络、设备、指标、中断、事件和审计日志。反向隧道让应用通过中继访问设备的网页界面。从第一天起即多租户。",
   "cfg.h":"配置",
   "cfg.t1":"变量","cfg.t2":"必需","cfg.t3":"用途",
@@ -269,6 +302,7 @@ const I18N={
   "qs.p":"क्लोन करें, एक डेटाबेस पासवर्ड सेट करें और इसे चालू करें। रिले शुरुआत में अपने स्कीमा माइग्रेशन स्वतः लागू करता है और <code>:8080</code> पर सुनता है।",
   "qs.after":"अपने एजेंट के <code>NETSCAN_RELAY_URL</code> को इस पर इंगित करें, फिर NetNazar ऐप के रिमोट व्यू से लॉग इन करें। वही बाइनरी एक एडमिन CLI के रूप में भी काम करती है:",
   "how.h":"यह कैसे काम करता है",
+  "how.z1":"आपका नेटवर्क","how.s1":"स्कैन · इन्वेंटरी + मेट्रिक्स","how.e1":"पुश","how.e1s":"HTTPS · केवल आउटबाउंड","how.z2":"आपका सर्वर","how.s2":"REST + WebSocket (axum)","how.e2":"पढ़ना","how.e2s":"लॉगिन · इवेंट","how.z3":"आपका फ़ोन","how.s3":"रिमोट व्यू · सत्र टोकन",
   "how.p":"एजेंट इन्वेंटरी और मेट्रिक्स पुश करता है (एजेंट कुंजी से प्रमाणित)। ऐप एक अपारदर्शी, हैश किए गए, समाप्त होने वाले सत्र टोकन के लिए लॉग इन करता है और नेटवर्क, डिवाइस, मेट्रिक्स, आउटेज, इवेंट और ऑडिट लॉग पढ़ता है। रिवर्स टनल ऐप को रिले के माध्यम से किसी डिवाइस के वेब UI तक पहुँचने देता है। पहले दिन से बहु-किरायेदार।",
   "cfg.h":"कॉन्फ़िगरेशन",
   "cfg.t1":"वेरिएबल","cfg.t2":"आवश्यक","cfg.t3":"उद्देश्य",
@@ -302,6 +336,7 @@ const I18N={
   "qs.p":"Clona, establece una contraseña de base de datos y arráncalo. El relay aplica sus migraciones de esquema automáticamente al iniciar y escucha en <code>:8080</code>.",
   "qs.after":"Apunta el <code>NETSCAN_RELAY_URL</code> de tu agente hacia él y luego inicia sesión desde la vista remota de la app NetNazar. El mismo binario funciona también como CLI de administración:",
   "how.h":"Cómo funciona",
+  "how.z1":"tu red","how.s1":"escaneo · inventario + métricas","how.e1":"envío","how.e1s":"HTTPS · solo saliente","how.z2":"tu servidor","how.s2":"REST + WebSocket (axum)","how.e2":"lectura","how.e2s":"inicio de sesión · eventos","how.z3":"tu teléfono","how.s3":"vista remota · token de sesión",
   "how.p":"El agente envía inventario y métricas (autenticado con una clave de agente). La app inicia sesión para obtener un token de sesión opaco, con hash y caducidad, y lee redes, dispositivos, métricas, cortes, eventos y el registro de auditoría. Un túnel inverso permite que la app llegue a la interfaz web de un dispositivo a través del relay. Multiinquilino desde el primer día.",
   "cfg.h":"Configuración",
   "cfg.t1":"Variable","cfg.t2":"Requerido","cfg.t3":"Propósito",
@@ -335,6 +370,7 @@ const I18N={
   "qs.p":"Clonez, définissez un mot de passe de base de données et lancez-le. Le relais applique automatiquement ses migrations de schéma au démarrage et écoute sur <code>:8080</code>.",
   "qs.after":"Pointez le <code>NETSCAN_RELAY_URL</code> de votre agent vers lui, puis connectez-vous depuis la vue distante de l'app NetNazar. Le même binaire sert aussi de CLI d'administration :",
   "how.h":"Comment ça marche",
+  "how.z1":"votre réseau","how.s1":"scan · inventaire + métriques","how.e1":"envoi","how.e1s":"HTTPS · sortant uniquement","how.z2":"votre serveur","how.s2":"REST + WebSocket (axum)","how.e2":"lecture","how.e2s":"connexion · événements","how.z3":"votre téléphone","how.s3":"vue distante · jeton de session",
   "how.p":"L'agent envoie l'inventaire et les métriques (authentifié avec une clé d'agent). L'app se connecte pour obtenir un jeton de session opaque, haché et expirant, et lit les réseaux, appareils, métriques, pannes, événements et le journal d'audit. Un tunnel inverse permet à l'app d'atteindre l'interface web d'un appareil via le relais. Multi-locataire dès le premier jour.",
   "cfg.h":"Configuration",
   "cfg.t1":"Variable","cfg.t2":"Requis","cfg.t3":"Rôle",
@@ -368,6 +404,7 @@ const I18N={
   "qs.p":"استنسخ، عيّن كلمة مرور لقاعدة البيانات، وشغّله. يطبّق المُرحِّل ترحيلات المخطط تلقائياً عند الإقلاع ويستمع على <code>:8080</code>.",
   "qs.after":"وجّه <code>NETSCAN_RELAY_URL</code> الخاص بوكيلك إليه، ثم سجّل الدخول من العرض البعيد في تطبيق NetNazar. الملف الثنائي نفسه يعمل أيضاً كأداة سطر أوامر إدارية:",
   "how.h":"كيف يعمل",
+  "how.z1":"شبكتك","how.s1":"فحص · جرد + مقاييس","how.e1":"دفع","how.e1s":"HTTPS · صادر فقط","how.z2":"خادمك","how.s2":"REST + WebSocket (axum)","how.e2":"قراءة","how.e2s":"تسجيل دخول · أحداث","how.z3":"هاتفك","how.s3":"عرض بعيد · رمز جلسة",
   "how.p":"يدفع الوكيل الجرد والمقاييس (موثّقاً بمفتاح وكيل). يسجّل التطبيق الدخول للحصول على رمز جلسة مبهم ومُجزّأ وينتهي، ويقرأ الشبكات والأجهزة والمقاييس والانقطاعات والأحداث وسجل التدقيق. يتيح النفق العكسي للتطبيق الوصول إلى واجهة ويب جهاز عبر المُرحِّل. متعدد المستأجرين من اليوم الأول.",
   "cfg.h":"الإعداد",
   "cfg.t1":"المتغيّر","cfg.t2":"مطلوب","cfg.t3":"الغرض",
@@ -401,6 +438,7 @@ const I18N={
   "qs.p":"Clone, defina uma senha de banco de dados e suba. O relay aplica suas migrações de esquema automaticamente na inicialização e escuta em <code>:8080</code>.",
   "qs.after":"Aponte o <code>NETSCAN_RELAY_URL</code> do seu agente para ele e então faça login pela visão remota do app NetNazar. O mesmo binário também funciona como CLI de administração:",
   "how.h":"Como funciona",
+  "how.z1":"sua rede","how.s1":"varredura · inventário + métricas","how.e1":"envio","how.e1s":"HTTPS · apenas saída","how.z2":"seu servidor","how.s2":"REST + WebSocket (axum)","how.e2":"leitura","how.e2s":"login · eventos","how.z3":"seu telefone","how.s3":"visão remota · token de sessão",
   "how.p":"O agente envia inventário e métricas (autenticado com uma chave de agente). O app faz login para obter um token de sessão opaco, com hash e expiração, e lê redes, dispositivos, métricas, quedas, eventos e o log de auditoria. Um túnel reverso permite que o app alcance a interface web de um dispositivo através do relay. Multilocatário desde o primeiro dia.",
   "cfg.h":"Configuração",
   "cfg.t1":"Variável","cfg.t2":"Obrigatória","cfg.t3":"Finalidade",
@@ -434,6 +472,7 @@ const I18N={
   "qs.p":"Клонируйте, задайте пароль базы данных и запустите. Ретранслятор автоматически применяет миграции схемы при старте и слушает на <code>:8080</code>.",
   "qs.after":"Направьте <code>NETSCAN_RELAY_URL</code> вашего агента на него, затем войдите из удалённого вида приложения NetNazar. Тот же бинарник работает и как административный CLI:",
   "how.h":"Как это работает",
+  "how.z1":"ваша сеть","how.s1":"сканирование · инвентаризация + метрики","how.e1":"отправка","how.e1s":"HTTPS · только исходящий","how.z2":"ваш сервер","how.s2":"REST + WebSocket (axum)","how.e2":"чтение","how.e2s":"вход · события","how.z3":"ваш телефон","how.s3":"удалённый вид · токен сессии",
   "how.p":"Агент отправляет инвентаризацию и метрики (с аутентификацией ключом агента). Приложение входит для получения непрозрачного, хешированного, истекающего токена сессии и читает сети, устройства, метрики, простои, события и журнал аудита. Обратный туннель позволяет приложению добраться до веб-интерфейса устройства через ретранслятор. Мультиарендность с первого дня.",
   "cfg.h":"Конфигурация",
   "cfg.t1":"Переменная","cfg.t2":"Обязательна","cfg.t3":"Назначение",
@@ -467,6 +506,7 @@ const I18N={
   "qs.p":"クローンし、データベースのパスワードを設定して起動します。リレーは起動時にスキーマのマイグレーションを自動適用し、<code>:8080</code> で待ち受けます。",
   "qs.after":"エージェントの <code>NETSCAN_RELAY_URL</code> をこれに向け、NetNazar アプリのリモートビューからログインします。同じバイナリは管理用 CLI としても機能します：",
   "how.h":"仕組み",
+  "how.z1":"あなたのネットワーク","how.s1":"スキャン · インベントリ + メトリクス","how.e1":"プッシュ","how.e1s":"HTTPS · 送信のみ","how.z2":"あなたのサーバー","how.s2":"REST + WebSocket (axum)","how.e2":"読み取り","how.e2s":"ログイン · イベント","how.z3":"あなたの端末","how.s3":"リモートビュー · セッショントークン",
   "how.p":"エージェントがインベントリとメトリクスをプッシュします（エージェントキーで認証）。アプリは不透明・ハッシュ化・有効期限付きのセッショントークンのためにログインし、ネットワーク・端末・メトリクス・障害・イベント・監査ログを読み取ります。逆トンネルにより、アプリはリレー経由で端末の Web UI にアクセスできます。初日からマルチテナント。",
   "cfg.h":"設定",
   "cfg.t1":"変数","cfg.t2":"必須","cfg.t3":"目的",
@@ -500,6 +540,7 @@ const I18N={
   "qs.p":"Klonen, ein Datenbankpasswort setzen und hochfahren. Das Relay wendet seine Schema-Migrationen beim Start automatisch an und lauscht auf <code>:8080</code>.",
   "qs.after":"Richte die <code>NETSCAN_RELAY_URL</code> deines Agenten darauf, und melde dich dann aus der Remote-Ansicht der NetNazar-App an. Dasselbe Binary dient auch als Admin-CLI:",
   "how.h":"Wie es funktioniert",
+  "how.z1":"dein Netzwerk","how.s1":"Scan · Inventar + Metriken","how.e1":"Push","how.e1s":"HTTPS · nur ausgehend","how.z2":"dein Server","how.s2":"REST + WebSocket (axum)","how.e2":"Lesen","how.e2s":"Login · Ereignisse","how.z3":"dein Telefon","how.s3":"Remote-Ansicht · Sitzungstoken",
   "how.p":"Der Agent pusht Inventar und Metriken (mit einem Agent-Schlüssel authentifiziert). Die App meldet sich für ein undurchsichtiges, gehashtes, ablaufendes Sitzungstoken an und liest Netzwerke, Geräte, Metriken, Ausfälle, Ereignisse und das Audit-Log. Ein Reverse-Tunnel lässt die App über das Relay auf die Weboberfläche eines Geräts zugreifen. Mandantenfähig vom ersten Tag an.",
   "cfg.h":"Konfiguration",
   "cfg.t1":"Variable","cfg.t2":"Erforderlich","cfg.t3":"Zweck",
